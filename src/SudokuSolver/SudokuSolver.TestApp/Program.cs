@@ -14,9 +14,13 @@ namespace SudokuSolver.TestApp
     {
         static void Main(string[] args)
         {
+            //Solve3x3();
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            Solve3x3();
+            //for (int i = 0; i < 100; i++)
+            {
+                Solve3x3();
+            }
             sw.Stop();
 
             Console.WriteLine(sw.Elapsed);
@@ -104,8 +108,8 @@ namespace SudokuSolver.TestApp
 
             if (grid.SolveGrid())
             {
-                Console.WriteLine("Solved");
-                Console.WriteLine(PrettyPrintSolution(grid.GetSolution(), grid.BoxWidth, grid.BoxHeight));
+                //Console.WriteLine("Solved");
+                //Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), grid.BoxWidth, grid.BoxHeight));
             }
         }
     }

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SudokuSolverLib
@@ -10,13 +11,13 @@ namespace SudokuSolverLib
     {
         public SudokuPuzzleNode Node { get; set; }
 
-        public bool HasValue { get; set; }
+        public bool HasValue; // { get; set; }
 
-        public List<SudokuNode> neighbours;
+        public SudokuNode[] neighbours;
 
-        public int PossibleValuesCount { get; set; }
+        public int PossibleValuesCount;// { get; set; }
 
-        private ulong possibleValues = ulong.MaxValue;
+        public ulong PossibleValues = ulong.MaxValue;
 
         private int MaxNodeValues;
 
@@ -58,32 +59,32 @@ namespace SudokuSolverLib
 
         public void SetNeighbours(IEnumerable<SudokuNode> nodes)
         {
-            neighbours = new List<SudokuNode>(nodes);
+            neighbours = nodes.ToArray();
         }
 
         public List<SudokuNode> RemoveValueFromNeighbours(int value)
         {
             var changed = new List<SudokuNode>();
-            foreach (var node in neighbours)
+            for (int i = 0; i < neighbours.Length; i++)
             {
-                if (!node.HasValue)
+                if (!neighbours[i].HasValue)
                 {
                     // if the node removed the value it means it was part of its list of potential values.
-                    if (node.RemovePossibleValue(value))
-                        changed.Add(node);
+                    if (neighbours[i].RemovePossibleValue(value))
+                        changed.Add(neighbours[i]);
                 }
             }
             return changed;
         }
 
-        public IEnumerable<int> PossibleValues()
-        {
-            for (int i = 0; i < MaxNodeValues; i++)
-            {
-                if (!IsSet(i))
-                    yield return i + 1;
-            }
-        }
+        //public IEnumerable<int> PossibleValues()
+        //{
+        //    for (int i = 0; i < MaxNodeValues; i++)
+        //    {
+        //        if (!IsSet(i))
+        //            yield return i + 1;
+        //    }
+        //}
 
         public void Print(StringBuilder line1, StringBuilder line2, StringBuilder line3)
         {
@@ -132,9 +133,12 @@ namespace SudokuSolverLib
             if (!HasValue)
             {
                 string values = string.Empty;
-                foreach (var item in PossibleValues())
+                for (int i = 0; i < MaxNodeValues; i++)
                 {
-                    values += item;
+                    if (!IsSet(i))
+                    {
+                        values += i;
+                    }
                 }
 
                 return string.Format("{0} - ({1},{2}) --> values:{3}", PossibleValuesCount, Node.Line, Node.Column, values);
@@ -148,17 +152,17 @@ namespace SudokuSolverLib
         #region Bitwise helpers
         private void Clear(int index)
         {
-            possibleValues &= (ulong)~(1 << index);
+            PossibleValues &= (ulong)~(1 << index);
         }
 
         private void Set(int index)
         {
-            possibleValues |= (ulong)(1 << index);
+            PossibleValues |= (ulong)(1 << index);
         }
 
         private bool IsSet(int index)
         {
-            return (possibleValues & (ulong)(1 << index)) != (ulong)(1 << index);
+            return (PossibleValues & (ulong)(1 << index)) != (ulong)(1 << index);
         }
         #endregion
     }

@@ -6,28 +6,27 @@ using System.Collections.Generic;
 
 namespace SudokuSolverLib
 {
-    public class Heap<T>
+    public abstract class Heap<T>
     {
         private const int DEFAULT_STORAGE_SIZE = 32;
 
-        private Func<T, T, bool> _sortFunc;
+        protected abstract bool Sorter(T first, T second);
+
         private T[] _storage;
         private int _size = 0;
 
-        public Heap(Func<T, T, bool> sortFunc)
-            : this(sortFunc, DEFAULT_STORAGE_SIZE)
+        public Heap()
+            : this(DEFAULT_STORAGE_SIZE)
         {
-            _sortFunc = sortFunc;
         }
 
-        public Heap(Func<T, T, bool> sortFunc, int storageSize)
+        public Heap(int storageSize)
         {
             _storage = new T[storageSize];
-            _sortFunc = sortFunc;
         }
 
-        public Heap(IEnumerable<T> items, Func<T, T, bool> sortFunc, int storageSize)
-            : this(sortFunc, storageSize)
+        public Heap(IEnumerable<T> items, int storageSize)
+            : this(storageSize)
         {
             foreach (var item in items)
             {
@@ -53,7 +52,7 @@ namespace SudokuSolverLib
             var parent = (index - 1) / 2;
 
             // Move the element up until it's parent is smaller than it
-            while (index > 0 && !_sortFunc(_storage[parent], _storage[index]))
+            while (index > 0 && !Sorter(_storage[parent], _storage[index]))
             {
                 Swap(index, parent);
                 index = parent;
@@ -107,9 +106,9 @@ namespace SudokuSolverLib
             int right = index * 2 + 2;
             int smallest = index;
 
-            if (left < _size && _sortFunc(_storage[left], _storage[index]))
+            if (left < _size && Sorter(_storage[left], _storage[index]))
                 smallest = left;
-            if (right < _size && _sortFunc(_storage[right], _storage[smallest]))
+            if (right < _size && Sorter(_storage[right], _storage[smallest]))
                 smallest = right;
 
             if (smallest != index)
@@ -126,9 +125,9 @@ namespace SudokuSolverLib
             int right = index * 2 + 2;
             int smallest = index;
 
-            if (left < _size && _sortFunc(_storage[left], _storage[index]))
+            if (left < _size && Sorter(_storage[left], _storage[index]))
                 smallest = left;
-            if (right < _size && _sortFunc(_storage[right], _storage[smallest]))
+            if (right < _size && Sorter(_storage[right], _storage[smallest]))
                 smallest = right;
 
             if (smallest != index)

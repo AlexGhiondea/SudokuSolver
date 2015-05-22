@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace SudokuSolverLib
 {
-    public abstract class Heap<T>
+    public abstract class Heap<T> 
     {
         private const int DEFAULT_STORAGE_SIZE = 32;
 

@@ -77,57 +77,6 @@ namespace SudokuSolverLib
             return changed;
         }
 
-        //public IEnumerable<int> PossibleValues()
-        //{
-        //    for (int i = 0; i < MaxNodeValues; i++)
-        //    {
-        //        if (!IsSet(i))
-        //            yield return i + 1;
-        //    }
-        //}
-
-        public void Print(StringBuilder line1, StringBuilder line2, StringBuilder line3)
-        {
-            StringBuilder current = line1;
-
-            if (HasValue)
-            {
-                line1.Append("   ");
-                line3.Append("   ");
-                current = line2;
-
-                current.AppendFormat(" {0} ", Node.ValueToChar());
-            }
-            else
-            {
-                string l1 = "", l2 = "", l3 = "";
-
-                int pos = 0;
-                for (int i = 0; i < MaxNodeValues; i++)
-                {
-                    if (!IsSet(i))
-                    {
-                        int item = i + 1;
-                        pos++;
-                        if (pos <= 3)
-                            l1 += item.ToString();
-                        else if (pos > 6)
-                            l3 += item.ToString();
-                        else if (pos > 3)
-                            l2 += item.ToString();
-                    }
-                }
-
-                l1 = l1.PadRight(3, ' ');
-                l2 = l2.PadRight(3, ' ');
-                l3 = l3.PadRight(3, ' ');
-
-                line1.Append(l1);
-                line2.Append(l2);
-                line3.Append(l3);
-            }
-        }
-
         public override string ToString()
         {
             if (!HasValue)

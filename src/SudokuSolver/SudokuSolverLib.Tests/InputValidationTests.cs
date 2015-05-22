@@ -50,6 +50,11 @@ namespace SudokuSolverLibTests
 1...
 4321
 ....", 1, 1));
+
+            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid(@"....3
+1...3
+43213
+....3", 2, 2));
         }
     }
 }

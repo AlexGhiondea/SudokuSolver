@@ -14,6 +14,22 @@ namespace SudokuSolver.TestApp
     {
         static void Main(string[] args)
         {
+            var grid = SudokuGrid.CreatePuzzle(2, 2, 7);
+            Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), 2, 2));
+            //Console.WriteLine(grid.ToString());
+
+            grid.SolveGrid();
+            Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), 2, 2));
+
+            return;
+            if (grid.SolveGrid())
+            {
+                Console.WriteLine(grid.ToString());
+                //Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), 3, 3));
+            }
+
+            return;
+
             //Solve3x3();
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -65,7 +81,7 @@ namespace SudokuSolver.TestApp
                     var node = sortedNodes[i * boxWidth * boxHeight + j];
 
                     line1.Append("   ");
-                    line2.AppendFormat(" {0} ", node.ValueToChar());
+                    line2.AppendFormat(" {0} ", node.ValueToChar()!='0' ? node.ValueToChar() : '.' );
                     line3.Append("   ");
 
                     line1.Append(" ");

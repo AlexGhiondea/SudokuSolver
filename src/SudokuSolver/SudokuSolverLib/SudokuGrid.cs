@@ -5,23 +5,25 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace SudokuSolverLib
 {
     public class SudokuGrid
     {
-        private SudokuNode[,] Nodes;
-        //private List<SudokuNode> Nodes;
+        private SudokuNode[,] nodes;
         private bool hasSolution;
-        private int boxWidth;
-        private int boxHeight;
-        private ulong winMask;
+        private readonly int boxWidth;
+        private readonly int boxHeight;
+        private readonly ulong winMask;
 
         public int BoxWidth { get { return boxWidth; } }
         public int BoxHeight { get { return boxHeight; } }
+        public bool HasSolution { get { return hasSolution; } }
 
-        public static SudokuGrid CreateGrid(string puzzle, int boxWidth, int boxHeight)
+        #region Factory methods and ctors
+        public static SudokuGrid FromPuzzle(string puzzle, int boxWidth, int boxHeight)
         {
             if (string.IsNullOrEmpty(puzzle))
                 throw new ArgumentException("Puzzle cannot be empty", "puzzle");
@@ -37,118 +39,156 @@ namespace SudokuSolverLib
 
         public static SudokuGrid CreatePuzzle(int boxWidth, int boxHeight, int hintsCount)
         {
+            // Create a new grid by solving an empty grid using a randomized order of picking values
             SudokuGrid grid = new SudokuGrid(boxWidth, boxHeight);
+            Random r = new Random((int)DateTime.Now.Ticks);
+            grid.SolveGrid(ArrayHelpers.CreateArrayOfRandomValues(r, boxWidth * boxHeight));
 
-            Heap<SudokuNode> mh = new MinSudokuHeap(boxHeight * boxWidth * boxHeight * boxWidth);
-
-            foreach (var node in grid.Nodes)
-            {
-                mh.Insert(node);
-            }
-
-            int seed = (int)DateTime.Now.Ticks;
-            Random r = new Random(seed);
-
-            grid.randomizeGrid(mh, r);
-
-            int[] hintsLocation = CreateArrayOfRandomValues(r, boxHeight * boxWidth * boxHeight * boxWidth);
+            // Create a new grid by taking hintsCount hints from the solved grid.
+            int[] hintsLocation = ArrayHelpers.CreateArrayOfRandomValues(r, boxHeight * boxWidth * boxHeight * boxWidth);
 
             SudokuGrid resultGrid = new SudokuGrid(boxWidth, boxHeight);
 
+            var x = grid.GetNodes().ToArray();
             for (int i = 0; i < hintsCount; i++)
             {
-                resultGrid.SetValue(grid.GetSolution().ElementAt(hintsLocation[i]).Line, grid.GetSolution().ElementAt(hintsLocation[i]).Column, grid.GetSolution().ElementAt(hintsLocation[i]).Value);
+                resultGrid.SetValue(x[hintsLocation[i]].Line, x[hintsLocation[i]].Column, x[hintsLocation[i]].Value);
             }
 
             return resultGrid;
-        }
-
-        public void SetValue(int line, int column, int value)
-        {
-            Nodes[line, column].Node.Value = value;
-            Nodes[line, column].Node.PartOfPuzzle = true;
-            Nodes[line, column].HasValue = true;
-            Nodes[line, column].RemoveValueFromNeighbours(value);
-        }
-
-        private class MinSudokuHeap : Heap<SudokuNode>
-        {
-            public MinSudokuHeap(int storageSize)
-                : base(storageSize)
-            {
-
-            }
-            protected override bool Sorter(SudokuNode left, SudokuNode right)
-            {
-                return left.PossibleValuesCount < right.PossibleValuesCount;
-            }
-        }
-
-        public bool SolveGrid()
-        {
-            Heap<SudokuNode> mh = new MinSudokuHeap(boxHeight * boxWidth * boxHeight * boxWidth);
-
-            foreach (var node in Nodes)
-            {
-                if (!node.HasValue)
-                {
-                    mh.Insert(node);
-                }
-            }
-
-            return solveGrid(mh);
-        }
-
-        public IEnumerable<SudokuPuzzleNode> GetSolution()
-        {
-            //if (!hasSolution)
-            //{
-            //    yield return null;
-            //}
-
-            foreach (var item in Nodes)
-            {
-                yield return item.Node;
-            }
         }
 
         private SudokuGrid(int boxWidth, int boxHeight)
         {
             this.boxHeight = boxHeight;
             this.boxWidth = boxWidth;
-            this.winMask = ulong.MaxValue << (boxWidth * boxHeight);
-            Nodes = new SudokuNode[boxHeight * boxWidth, boxHeight * boxWidth];
+            winMask = ulong.MaxValue << (boxWidth * boxHeight);
 
-            CreateEmptyNodes(boxWidth, boxHeight);
-
-            ComputeNeighbours(boxWidth, boxHeight);
-        }
-
-        private void CreateEmptyNodes(int boxWidth, int boxHeight)
-        {
+            // Create the nodes
+            nodes = new SudokuNode[boxHeight * boxWidth, boxHeight * boxWidth];
             for (int i = 0; i < boxHeight * boxWidth; i++)
             {
                 for (int j = 0; j < boxHeight * boxWidth; j++)
                 {
-                    Nodes[i, j] = new SudokuNode(i, j, boxHeight * boxWidth);
+                    nodes[i, j] = new SudokuNode(i, j, boxHeight * boxWidth);
                 }
             }
+
+            ComputeNeighbours(boxWidth, boxHeight);
         }
 
         private SudokuGrid(string puzzle, int width, int height)
             : this(width, height)
         {
-            ParsePazzleToNodes(puzzle, width, height);
+            CreateGridNodesFromPuzzle(puzzle, width, height);
         }
+        #endregion 
 
-        private void ParsePazzleToNodes(string puzzle, int width, int height)
+        public void SetValue(int line, int column, int value)
         {
-            CreateGridNodes(puzzle, width, height);
-
-            ComputeNeighbours(width, height);
+            nodes[line, column].Node.Value = value;
+            nodes[line, column].Node.PartOfPuzzle = true;
+            nodes[line, column].HasValue = true;
+            nodes[line, column].RemoveValueFromNeighbours(value);
         }
 
-        private void CreateGridNodes(string puzzle, int width, int height)
+        public IEnumerable<SudokuPuzzleNode> GetNodes()
+        {
+            foreach (var item in nodes)
+            {
+                yield return item.Node;
+            }
+        }
+
+        public bool SolveGrid()
+        {
+            return SolveGrid(ArrayHelpers.CreateOrderedArray(boxHeight * boxWidth));
+        }
+
+        private bool SolveGrid(int[] orderedValues)
+        {
+            return SolveGridInternal(CreateHeapForPuzzle(), orderedValues);
+        }
+
+        private bool SolveGridInternal(Heap<SudokuNode> stillToFix, int[] orderedValues)
+        {
+            // if we have a column with no potential values... that is bad :)
+            if (stillToFix.IsEmpty)
+            {
+                //are we done?
+                return ValidateSolution();
+            }
+            if (stillToFix.PeakAtRoot().PossibleValuesCount == 0)
+            {
+                return false;
+            }
+
+            var node = stillToFix.GetRoot();
+            ulong values = node.PossibleValues;
+
+            // depending if we are creating a puzzle or solving one
+            node.HasValue = true;
+            for (int i = 0; i < boxHeight * boxWidth; i++)
+            {
+                if (IsSet(values, orderedValues[i]))
+                {
+                    continue;
+                }
+
+                if (TrySetValue(node, orderedValues[i] + 1, stillToFix, orderedValues))
+                    return true;
+            }
+
+            node.HasValue = false;
+
+            stillToFix.Insert(node);
+
+            return false;
+        }
+
+        private bool TrySetValue(SudokuNode node, int value, Heap<SudokuNode> stillToFix, int[] orderedValues)
+        {
+            node.Node.Value = value;
+
+            var changed = new List<SudokuNode>();
+            foreach (var nn in node.neighbours)
+            {
+                if (nn.HasValue == false)
+                {
+                    if (nn.RemovePossibleValue(value))
+                    {
+                        // if we removed a value, we need to rebalance the heap
+                        changed.Add(nn);
+                    }
+                }
+            }
+
+            // we need to re-sort the heap after we made the changes.
+            if (changed.Count > 0)
+            {
+                stillToFix.Resort();
+            }
+
+            var solved = SolveGridInternal(stillToFix, orderedValues);
+
+            if (solved)
+                return true;
+
+            //recover the previous state
+            foreach (var nn in changed)
+            {
+                nn.AddPossibleValue(value);
+            }
+
+            if (changed.Count > 0)
+            {
+                stillToFix.Resort();
+            }
+
+            return false;
+        }
+
+        private void CreateGridNodesFromPuzzle(string puzzle, int width, int height)
         {
             int line = 0;
 
@@ -159,7 +199,6 @@ namespace SudokuSolverLib
                 while ((lineText = sr.ReadLine()) != null)
                 {
                     int column = 0;
-
                     int textCol = 0;
 
                     while (textCol < lineText.Length)
@@ -168,25 +207,38 @@ namespace SudokuSolverLib
                         {
                             textCol++;
                             if (textCol == lineText.Length)
+                            {
                                 break;
+                            }
                         }
                         if (textCol == lineText.Length)
+                        {
                             break;
+                        }
 
                         //we got to either a digit or a .
                         char c = lineText[textCol];
+                        int value = -1;
 
-                        SudokuNode node = CreateNode(line, column, c, width * height);
-
-                        if (node == null)
+                        if (char.IsDigit(c))
+                        {
+                            value = c - '0';
+                        }
+                        else if (char.IsLetter(c) && c >= 'A' && c <= 'Z')
+                        {
+                            value = c - 'A' + 10;
+                        }
+                        else if (c != '.')
                         {
                             throw new FormatException(string.Format("Unexpected character '{0}' while parsing puzzle (line {1} col {2})", c, line + 1, textCol + 1));
                         }
 
                         if (column >= boxHeight * boxWidth)
+                        {
                             throw new ArgumentException("There is a mismatch between the size of the grid and the nodes identified in the puzzle");
+                        }
 
-                        Nodes[line, column] = node;
+                        nodes[line, column].SetValue(value);
 
                         column++;
                         textCol++;
@@ -205,24 +257,6 @@ namespace SudokuSolverLib
                 throw new ArgumentException("There is a mismatch between the size of the grid and the nodes identified in the puzzle");
         }
 
-        private static SudokuNode CreateNode(int line, int column, char c, int maxNodeValues)
-        {
-            if (char.IsDigit(c))
-            {
-                return new SudokuNode(line, column, maxNodeValues, (int)c - '0');
-            }
-            else if (char.IsLetter(c) && c >= 'A' && c <= 'Z')
-            {
-                return new SudokuNode(line, column, maxNodeValues, (int)c - 'A' + 10);
-            }
-            else if (c == '.')
-            {
-                return new SudokuNode(line, column, maxNodeValues);
-            }
-
-            return null;
-        }
-
         private void ComputeNeighbours(int width, int height)
         {
             for (int line = 0; line < width * height; line++)
@@ -235,10 +269,10 @@ namespace SudokuSolverLib
                     for (int i = 0; i < width * height; i++)
                     {
                         if (i != line)
-                            n.Add(Nodes[i, col]);
+                            n.Add(nodes[i, col]);
 
                         if (i != col)
-                            n.Add(Nodes[line, i]);
+                            n.Add(nodes[line, i]);
                     }
 
                     // add the box
@@ -247,15 +281,15 @@ namespace SudokuSolverLib
                         for (int boxCol = (col / width) * width; boxCol < ((col / width) + 1) * width; boxCol++)
                         {
                             if (boxLine != line && boxCol != col)
-                                n.Add(Nodes[boxLine, boxCol]);
+                                n.Add(nodes[boxLine, boxCol]);
                         }
                     }
 
-                    Nodes[line, col].SetNeighbours(n);
+                    nodes[line, col].SetNeighbours(n);
 
-                    if (Nodes[line, col].HasValue)
+                    if (nodes[line, col].HasValue)
                     {
-                        Nodes[line, col].RemoveValueFromNeighbours(Nodes[line, col].Node.Value);
+                        nodes[line, col].RemoveValueFromNeighbours(nodes[line, col].Node.Value);
                     }
                 }
             }
@@ -271,14 +305,14 @@ namespace SudokuSolverLib
                 for (int line = 0; line < boxHeight * BoxWidth; line++)
                 {
                     // we haven't finished
-                    if (Nodes[line, i].Node.Value < 0)
+                    if (nodes[line, i].Node.Value < 0)
                         return false;
-                    rezLine &= (ulong)~(1 << (Nodes[line, i].Node.Value - 1));
+                    rezLine &= (ulong)~(1 << (nodes[line, i].Node.Value - 1));
 
                     // we haven't finished
-                    if (Nodes[i, line].Node.Value < 0)
+                    if (nodes[i, line].Node.Value < 0)
                         return false;
-                    rezCol &= (ulong)~(1 << (Nodes[i, line].Node.Value - 1));
+                    rezCol &= (ulong)~(1 << (nodes[i, line].Node.Value - 1));
                 }
 
                 if (rezLine != winMask || rezCol != winMask)
@@ -296,9 +330,9 @@ namespace SudokuSolverLib
                         for (int boxCol = col * boxWidth; boxCol < (col + 1) * boxWidth; boxCol++)
                         {
                             // we haven't finished
-                            if (Nodes[boxLine, boxCol].Node.Value < 0)
+                            if (nodes[boxLine, boxCol].Node.Value < 0)
                                 return false;
-                            rezBox &= (ulong)~(1 << (Nodes[boxLine, boxCol].Node.Value - 1));
+                            rezBox &= (ulong)~(1 << (nodes[boxLine, boxCol].Node.Value - 1));
                         }
                     }
 
@@ -310,172 +344,27 @@ namespace SudokuSolverLib
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsSet(ulong possibleValues, int index)
         {
             return (possibleValues & (ulong)(1 << index)) != (ulong)(1 << index);
         }
 
-        private bool solveGrid(Heap<SudokuNode> stillToFix)
+        private Heap<SudokuNode> CreateHeapForPuzzle()
         {
-            // if we have a column with no potential values... that is bad :)
-            if (stillToFix.IsEmpty)
+            Heap<SudokuNode> mh = new MinSudokuHeap(boxHeight * boxWidth * boxHeight * boxWidth);
+
+            foreach (var node in nodes)
             {
-                //are we done?
-                return ValidateSolution();
-            }
-            if (stillToFix.PeakAtRoot().PossibleValuesCount == 0)
-            {
-                return false;
-            }
-
-            var node = stillToFix.GetRoot();
-            ulong values = node.PossibleValues;
-
-            for (int i = 0; i < boxHeight * boxWidth; i++)
-            {
-                if (IsSet(values, i))
+                if (!node.HasValue)
                 {
-                    continue;
+                    mh.Insert(node);
                 }
-
-                int value = i + 1;
-                node.Node.Value = value;
-                node.HasValue = true;
-
-                var changed = new List<SudokuNode>();
-                foreach (var nn in node.neighbours)
-                {
-                    if (nn.HasValue == false)
-                    {
-                        if (nn.RemovePossibleValue(value))
-                        {
-                            // if we removed a value, we need to rebalance the heap
-                            changed.Add(nn);
-                        }
-                    }
-                }
-
-                // we need to re-sort the heap after we made the changes.
-                if (changed.Count > 0)
-                {
-                    stillToFix.Resort();
-                }
-
-                var solved = solveGrid(stillToFix);
-
-                if (solved)
-                    return true;
-
-                //recover the previous state
-                foreach (var nn in changed)
-                {
-                    nn.AddPossibleValue(value);
-                }
-
-                if (changed.Count > 0)
-                {
-                    stillToFix.Resort();
-                }
-
-                node.HasValue = false;
             }
 
-            stillToFix.Insert(node);
-
-            return false;
+            return mh;
         }
 
-        private bool randomizeGrid(Heap<SudokuNode> stillToFix, Random r)
-        {
-            // if we have a column with no potential values... that is bad :)
-            if (stillToFix.IsEmpty)
-            {
-                //are we done?
-                return ValidateSolution();
-            }
-            if (stillToFix.PeakAtRoot().PossibleValuesCount == 0)
-            {
-                return false;
-            }
-
-            var node = stillToFix.GetRoot();
-            ulong values = node.PossibleValues;
-
-            //create a random list.
-            int[] arr = CreateArrayOfRandomValues(r, boxHeight * boxWidth);
-
-            for (int i = 0; i < arr.Length; i++)
-            {
-                if (IsSet(values, arr[i]))
-                {
-                    continue;
-                }
-
-                int value = arr[i] + 1;
-                node.Node.Value = value;
-                node.HasValue = true;
-
-                var changed = new List<SudokuNode>();
-                foreach (var nn in node.neighbours)
-                {
-                    if (nn.HasValue == false)
-                    {
-                        if (nn.RemovePossibleValue(value))
-                        {
-                            // if we removed a value, we need to rebalance the heap
-                            changed.Add(nn);
-                        }
-                    }
-                }
-
-                // we need to re-sort the heap after we made the changes.
-                if (changed.Count > 0)
-                {
-                    stillToFix.Resort();
-                }
-
-                var solved = randomizeGrid(stillToFix, r);
-
-                if (solved)
-                    return true;
-
-                //recover the previous state
-                foreach (var nn in changed)
-                {
-                    nn.AddPossibleValue(value);
-                }
-
-                if (changed.Count > 0)
-                {
-                    stillToFix.Resort();
-                }
-
-                node.HasValue = false;
-            }
-
-            stillToFix.Insert(node);
-
-            return false;
-        }
-
-        private static int[] CreateArrayOfRandomValues(Random r, int arrayLength)
-        {
-            int[] arr = new int[arrayLength];
-            for (int i = 0; i < arrayLength; i++)
-            {
-                arr[i] = i;
-            }
-
-            for (int i = 0; i < arrayLength; i++)
-            {
-                var val = r.Next(0, arrayLength);
-
-                int temp = arr[i];
-                arr[i] = arr[val];
-                arr[val] = temp;
-            }
-            return arr;
-        }
 
         public override string ToString()
         {
@@ -485,7 +374,7 @@ namespace SudokuSolverLib
             {
                 for (int j = 0; j < boxHeight * boxWidth; j++)
                 {
-                    sb.Append(Nodes[i, j].HasValue ? Nodes[i, j].Node.ValueToChar() : '.');
+                    sb.Append(nodes[i, j].HasValue ? nodes[i, j].Node.ValueToChar() : '.');
                 }
                 sb.AppendLine();
             }

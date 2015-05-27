@@ -12,46 +12,46 @@ namespace SudokuSolverLibTests
         [Fact]
         public static void EmptyOrNullPuzzle()
         {
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid(string.Empty, 2, 2));
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid(null, 2, 2));
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle(string.Empty, 2, 2));
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle(null, 2, 2));
         }
 
         [Fact]
         public static void InvalidCharactersInPuzzle()
         {
-            Assert.Throws<FormatException>(() => SudokuGrid.CreateGrid("$", 2, 2));
-            Assert.Throws<FormatException>(() => SudokuGrid.CreateGrid(".$", 2, 2));
-            Assert.Throws<FormatException>(() => SudokuGrid.CreateGrid(@"....
+            Assert.Throws<FormatException>(() => SudokuGrid.FromPuzzle("$", 2, 2));
+            Assert.Throws<FormatException>(() => SudokuGrid.FromPuzzle(".$", 2, 2));
+            Assert.Throws<FormatException>(() => SudokuGrid.FromPuzzle(@"....
 &...", 2, 2));
-            Assert.Throws<FormatException>(() => SudokuGrid.CreateGrid("1 .      . %", 2, 2));
+            Assert.Throws<FormatException>(() => SudokuGrid.FromPuzzle("1 .      . %", 2, 2));
         }
 
         [Fact]
         public static void InvalidPuzzleSize()
         {
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid("1", 0, 0));
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid("1", -1, 0));
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid("1", 0, -1));
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid("1", 17, 17));
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle("1", 0, 0));
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle("1", -1, 0));
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle("1", 0, -1));
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle("1", 17, 17));
         }
 
         [Fact]
         public static void NotEnoughNodesSpecified()
         {
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid("          ", 16, 16));
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid("          ", 2, 2));
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid("123", 2, 2));
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid(@"....
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle("          ", 16, 16));
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle("          ", 2, 2));
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle("123", 2, 2));
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle(@"....
 1...
 4321
 ....", 4, 4));
 
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid(@"....
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle(@"....
 1...
 4321
 ....", 1, 1));
 
-            Assert.Throws<ArgumentException>(() => SudokuGrid.CreateGrid(@"....3
+            Assert.Throws<ArgumentException>(() => SudokuGrid.FromPuzzle(@"....3
 1...3
 43213
 ....3", 2, 2));

@@ -21,6 +21,13 @@ namespace SudokuSolverLib
 
         private int MaxNodeValues;
 
+        public void SetValue(int value)
+        {
+            Node.Value = value;
+            HasValue = true;
+            Node.PartOfPuzzle = true;
+        }
+
         public SudokuNode(int line, int column, int possibleValuesCount)
         {
             Node = new SudokuPuzzleNode(line, column);

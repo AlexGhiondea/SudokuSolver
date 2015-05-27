@@ -14,24 +14,55 @@ namespace SudokuSolver.TestApp
     {
         static void Main(string[] args)
         {
-            var grid = SudokuGrid.CreatePuzzle(2, 2, 7);
-            Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), 2, 2));
-            //Console.WriteLine(grid.ToString());
+            Stopwatch sw = new Stopwatch();
 
+            var grid = SudokuGrid.CreatePuzzle(3, 3, 21);
             grid.SolveGrid();
-            Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), 2, 2));
+            Console.WriteLine(PrettyPrintSolution(grid.GetNodes().ToList(), grid.BoxWidth, grid.BoxHeight));
 
             return;
-            if (grid.SolveGrid())
+
+            long max = -1;
+            string puzzle = string.Empty;
+            for (int i = 0; i < 10000; i++)
             {
-                Console.WriteLine(grid.ToString());
-                //Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), 3, 3));
+                //sw.Restart();
+                //var grid = SudokuGrid.CreatePuzzle(3, 3, 21);
+                //var p2 = grid.ToString();
+                //grid.SolveGrid();
+                //sw.Stop();
+
+                //if (sw.ElapsedTicks > max)
+                //{
+                //    max = sw.ElapsedTicks;
+                //    puzzle = p2;
+                //}
+
+
+
+                Console.CursorTop = 0;
+                Console.CursorLeft = 0;
+                //var grid = SudokuGrid.CreatePuzzle(3, 3, 21);
+                Console.WriteLine(PrettyPrintSolution(grid.GetNodes().ToList(), 3, 3));
+                grid.SolveGrid();
+                Console.WriteLine(PrettyPrintSolution(grid.GetNodes().ToList(), 3, 3));
             }
+            //Console.WriteLine(grid.ToString());
+
+            Console.WriteLine(max);
+            Console.WriteLine(puzzle);
+
+            return;
+            //if (grid.SolveGrid())
+            //{
+            //    Console.WriteLine(grid.ToString());
+            //    //Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), 3, 3));
+            //}
 
             return;
 
             //Solve3x3();
-            Stopwatch sw = new Stopwatch();
+            //Stopwatch sw = new Stopwatch();
             sw.Start();
             //for (int i = 0; i < 100; i++)
             {
@@ -81,7 +112,7 @@ namespace SudokuSolver.TestApp
                     var node = sortedNodes[i * boxWidth * boxHeight + j];
 
                     line1.Append("   ");
-                    line2.AppendFormat(" {0} ", node.ValueToChar()!='0' ? node.ValueToChar() : '.' );
+                    line2.AppendFormat(" {0} ", node.ValueToChar() != '0' ? node.ValueToChar() : '.');
                     line3.Append("   ");
 
                     line1.Append(" ");
@@ -109,24 +140,27 @@ namespace SudokuSolver.TestApp
 
         private static void Solve3x3()
         {
-            string puzzle = @". . . . . . . . .
-. . . . . 3 . 8 5
-. . 1 . 2 . . . .
-. . . 5 . 7 . . .
-. . 4 . . . 1 . .
-. 9 . . . . . . .
-5 . . . . . . 7 3
-. . 2 . 1 . . . .
-. . . . 4 . . . 9
+            string puzzle = @".6...2..9
+.....917.
+8.9..3..4
+....2....
+.....8.4.
+5.......2
+..2......
+..52.....
+..8.9.4..
 ";
 
-            SudokuGrid grid = SudokuGrid.CreateGrid(puzzle, 3, 3);
-
+            SudokuGrid grid = SudokuGrid.FromPuzzle(puzzle, 3, 3);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             if (grid.SolveGrid())
             {
-                //Console.WriteLine("Solved");
-                //Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), grid.BoxWidth, grid.BoxHeight));
+                Console.WriteLine("Solved");
+                Console.WriteLine(PrettyPrintSolution(grid.GetNodes().ToList(), grid.BoxWidth, grid.BoxHeight));
             }
+            sw.Stop();
+            Console.WriteLine(sw.ElapsedMilliseconds);
         }
     }
 }

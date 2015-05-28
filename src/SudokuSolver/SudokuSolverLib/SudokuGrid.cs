@@ -145,14 +145,6 @@ namespace SudokuSolverLib
                 }
             }
             return updatedNodes;
-
-            //nodes[line, col].SetNeighbours(n);
-
-            //if (nodes[line, col].HasValue)
-            //{
-            //    nodes[line, col].RemoveValueFromNeighbours(nodes[line, col].Node.Value);
-            //}
-            //return n;
         }
 
         public IEnumerable<SudokuPuzzleNode> GetNodes()

@@ -275,6 +275,12 @@ FC17A8GB6924D3E5
             CheckSolution(puzzle, solution, 4, 4);
         }
 
+        private static void SolvePuzzleCreated()
+        {
+            Assert.True(SudokuGrid.CreatePuzzle(3, 3, 21).SolveGrid());
+        }
+
+
         private static void CheckSolution(string puzzle, string solutionString, int boxWidth, int boxHeight)
         {
             SudokuGrid grid = SudokuGrid.FromPuzzle(puzzle, boxWidth, boxHeight);

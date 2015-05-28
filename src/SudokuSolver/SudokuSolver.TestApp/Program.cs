@@ -14,54 +14,56 @@ namespace SudokuSolver.TestApp
     {
         static void Main(string[] args)
         {
-            long max = -1;
-            string puzzle = string.Empty;
-            Stopwatch sw = new Stopwatch();
 
-
-            for (int i = 0; i < 10000; i++)
-            {
-                sw.Restart();
-                Console.CursorTop = 0;
-                Console.CursorLeft = 0;
-                var puzzle = SudokuPuzzle.Create(3, 3, 21);
-
-                Console.WriteLine(puzzle.PrettyPrint());
-                puzzle.SolveGrid();
-                Console.WriteLine(puzzle.PrettyPrint());
-                sw.Stop();
-
-                if (max < sw.ElapsedTicks)
-                {
-                    max = sw.ElapsedTicks;
-                    puzzle = puzzle.PrettyPrint();
-                }
-            }
-            //Console.WriteLine(grid.ToString());
-
-            Console.WriteLine(max);
-            Console.WriteLine(puzzle);
-
-            return;
-            //if (grid.SolveGrid())
-            //{
-            //    Console.WriteLine(grid.ToString());
-            //    //Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), 3, 3));
-            //}
-
-            return;
-
-            //Solve3x3();
+            Solve3x3();
+            //long max = -1;
+            //string puzzle = string.Empty;
             //Stopwatch sw = new Stopwatch();
-            sw.Start();
-            //for (int i = 0; i < 100; i++)
-            {
-                Solve3x3();
-            }
-            sw.Stop();
 
-            Console.WriteLine(sw.Elapsed);
-            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            //for (int i = 0; i < 10000; i++)
+            //{
+            //    sw.Restart();
+            //    Console.CursorTop = 0;
+            //    Console.CursorLeft = 0;
+            //    var grid = SudokuPuzzle.Create(3, 3, 21);
+
+            //    Console.WriteLine(grid.PrettyPrint());
+            //    grid.SolveGrid();
+            //    Console.WriteLine(grid.PrettyPrint());
+            //    sw.Stop();
+
+            //    if (max < sw.ElapsedTicks)
+            //    {
+            //        max = sw.ElapsedTicks;
+            //        puzzle = puzzle.ToString();
+            //    }
+            //}
+            ////Console.WriteLine(grid.ToString());
+
+            //Console.WriteLine(max);
+            //Console.WriteLine(puzzle);
+
+            //return;
+            ////if (grid.SolveGrid())
+            ////{
+            ////    Console.WriteLine(grid.ToString());
+            ////    //Console.WriteLine(PrettyPrintSolution(grid.GetSolution().ToList(), 3, 3));
+            ////}
+
+            //return;
+
+            ////Solve3x3();
+            ////Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            ////for (int i = 0; i < 100; i++)
+            //{
+            //    Solve3x3();
+            //}
+            //sw.Stop();
+
+            //Console.WriteLine(sw.Elapsed);
+            //Console.WriteLine(sw.ElapsedMilliseconds);
         }
 
         private static void Solve3x3()

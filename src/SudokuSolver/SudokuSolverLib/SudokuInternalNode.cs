@@ -1,13 +1,14 @@
 ﻿// Copyright (c) Alex Ghiondea. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace SudokuSolverLib
 {
-    internal class SudokuInternalNode
+    internal class SudokuInternalNode : IComparable<SudokuInternalNode>
     {
         public SudokuNode Node { get; set; }
 
@@ -90,6 +91,12 @@ namespace SudokuSolverLib
         {
             return (PossibleValues & (ulong)(1 << index)) != (ulong)(1 << index);
         }
+
+        public int CompareTo(SudokuInternalNode other)
+        {
+            return PossibleValuesCount.CompareTo(other.PossibleValuesCount);
+        }
+
         #endregion
     }
 }

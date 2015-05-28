@@ -14,42 +14,28 @@ namespace SudokuSolver.TestApp
     {
         static void Main(string[] args)
         {
-
-            Solve3x3();
-            return;
-
-            Stopwatch sw = new Stopwatch();
-
-            var grid = SudokuGrid.CreatePuzzle(3, 3, 21);
-            grid.SolveGrid();
-            Console.WriteLine(PrettyPrintSolution(grid.GetNodes().ToList(), grid.BoxWidth, grid.BoxHeight));
-
-            return;
-
             long max = -1;
             string puzzle = string.Empty;
+            Stopwatch sw = new Stopwatch();
+
+
             for (int i = 0; i < 10000; i++)
             {
-                //sw.Restart();
-                //var grid = SudokuGrid.CreatePuzzle(3, 3, 21);
-                //var p2 = grid.ToString();
-                //grid.SolveGrid();
-                //sw.Stop();
-
-                //if (sw.ElapsedTicks > max)
-                //{
-                //    max = sw.ElapsedTicks;
-                //    puzzle = p2;
-                //}
-
-
-
+                sw.Restart();
                 Console.CursorTop = 0;
                 Console.CursorLeft = 0;
-                //var grid = SudokuGrid.CreatePuzzle(3, 3, 21);
-                Console.WriteLine(PrettyPrintSolution(grid.GetNodes().ToList(), 3, 3));
-                grid.SolveGrid();
-                Console.WriteLine(PrettyPrintSolution(grid.GetNodes().ToList(), 3, 3));
+                var puzzle = SudokuPuzzle.Create(3, 3, 21);
+
+                Console.WriteLine(puzzle.PrettyPrint());
+                puzzle.SolveGrid();
+                Console.WriteLine(puzzle.PrettyPrint());
+                sw.Stop();
+
+                if (max < sw.ElapsedTicks)
+                {
+                    max = sw.ElapsedTicks;
+                    puzzle = puzzle.PrettyPrint();
+                }
             }
             //Console.WriteLine(grid.ToString());
 
@@ -78,70 +64,6 @@ namespace SudokuSolver.TestApp
             Console.WriteLine(sw.ElapsedMilliseconds);
         }
 
-        static string PrettyPrintSolution(List<SudokuPuzzleNode> nodes, int boxWidth, int boxHeight)
-        {
-            //generate a string representation for the grid.
-            var sortedNodes = (from n in nodes
-                               orderby n.Column
-                               orderby n.Line
-                               select n).ToList();
-
-            StringBuilder line1;
-            StringBuilder line2;
-            StringBuilder line3;
-
-            StringBuilder sb = new StringBuilder();
-
-            StringBuilder s = new StringBuilder();
-            for (int i = 0; i < boxHeight; i++)
-            {
-                s.Append("|-");
-                s.Append("-".PadRight(4 * boxWidth, '-'));
-            }
-            s.Append("|");
-            var horizLine = s.ToString();
-
-
-            sb.AppendLine(horizLine);
-            for (int i = 0; i < boxHeight * boxWidth; i++)
-            {
-                line1 = new StringBuilder();
-                line2 = new StringBuilder();
-                line3 = new StringBuilder();
-                line1.Append("| ");
-                line2.Append("| ");
-                line3.Append("| ");
-                for (int j = 0; j < boxHeight * boxWidth; j++)
-                {
-                    var node = sortedNodes[i * boxWidth * boxHeight + j];
-
-                    line1.Append("   ");
-                    line2.AppendFormat(" {0} ", node.ValueToChar() != '0' ? node.ValueToChar() : '.');
-                    line3.Append("   ");
-
-                    line1.Append(" ");
-                    line2.Append(" ");
-                    line3.Append(" ");
-
-                    if ((j + 1) % boxWidth == 0)
-                    {
-                        line1.Append("| ");
-                        line2.Append("| ");
-                        line3.Append("| ");
-                    }
-
-                }
-                sb.AppendLine(line1.ToString());
-                sb.AppendLine(line2.ToString());
-                sb.AppendLine(line3.ToString());
-                if ((i + 1) % boxHeight == 0)
-                {
-                    sb.AppendLine(horizLine);
-                }
-            }
-            return sb.ToString();
-        }
-
         private static void Solve3x3()
         {
             string puzzle = @".6...2..9
@@ -155,13 +77,13 @@ namespace SudokuSolver.TestApp
 ..8.9.4..
 ";
 
-            SudokuGrid grid = SudokuGrid.FromPuzzle(puzzle, 3, 3);
+            SudokuPuzzle grid = SudokuPuzzle.FromString(puzzle, 3, 3);
             Stopwatch sw = new Stopwatch();
             sw.Start();
             if (grid.SolveGrid())
             {
                 Console.WriteLine("Solved");
-                Console.WriteLine(PrettyPrintSolution(grid.GetNodes().ToList(), grid.BoxWidth, grid.BoxHeight));
+                Console.WriteLine(grid.PrettyPrint());
             }
             sw.Stop();
             Console.WriteLine(sw.ElapsedMilliseconds);

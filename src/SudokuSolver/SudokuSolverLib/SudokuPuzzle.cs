@@ -10,12 +10,13 @@ using System.Text;
 
 namespace SudokuSolverLib
 {
-    public class SudokuGrid
+    public class SudokuPuzzle
     {
-        private SudokuNode[,] nodes;
+        private SudokuInternalNode[,] nodes;
         private bool hasSolution;
         private readonly int boxWidth;
         private readonly int boxHeight;
+        private readonly int possibleNodeValueCount;
         private readonly ulong winMask;
 
         public int BoxWidth { get { return boxWidth; } }
@@ -23,7 +24,7 @@ namespace SudokuSolverLib
         public bool HasSolution { get { return hasSolution; } }
 
         #region Factory methods and ctors
-        public static SudokuGrid FromPuzzle(string puzzle, int boxWidth, int boxHeight)
+        public static SudokuPuzzle FromString(string puzzle, int boxWidth, int boxHeight)
         {
             if (string.IsNullOrEmpty(puzzle))
                 throw new ArgumentException("Puzzle cannot be empty", "puzzle");
@@ -34,20 +35,20 @@ namespace SudokuSolverLib
             if (boxWidth > 16 || boxHeight > 16)
                 throw new ArgumentException("Cannot have a puzzle box size larger than 16x16");
 
-            return new SudokuGrid(puzzle, boxWidth, boxHeight);
+            return new SudokuPuzzle(puzzle, boxWidth, boxHeight);
         }
 
-        public static SudokuGrid CreatePuzzle(int boxWidth, int boxHeight, int hintsCount)
+        public static SudokuPuzzle Create(int boxWidth, int boxHeight, int hintsCount)
         {
             // Create a new grid by solving an empty grid using a randomized order of picking values
-            SudokuGrid grid = new SudokuGrid(boxWidth, boxHeight);
+            SudokuPuzzle grid = new SudokuPuzzle(boxWidth, boxHeight);
             Random r = new Random((int)DateTime.Now.Ticks);
-            grid.SolveGrid(ArrayHelpers.CreateArrayOfRandomValues(r, boxWidth * boxHeight));
+            grid.SolveGrid(ArrayHelpers.RandomizedRange(boxWidth * boxHeight, r));
 
             // Create a new grid by taking hintsCount hints from the solved grid.
-            int[] hintsLocation = ArrayHelpers.CreateArrayOfRandomValues(r, boxHeight * boxWidth * boxHeight * boxWidth);
+            int[] hintsLocation = ArrayHelpers.RandomizedRange(boxHeight * boxWidth * boxHeight * boxWidth, r);
 
-            SudokuGrid resultGrid = new SudokuGrid(boxWidth, boxHeight);
+            SudokuPuzzle resultGrid = new SudokuPuzzle(boxWidth, boxHeight);
 
             var x = grid.GetNodes().ToArray();
             for (int i = 0; i < hintsCount; i++)
@@ -58,24 +59,25 @@ namespace SudokuSolverLib
             return resultGrid;
         }
 
-        private SudokuGrid(int boxWidth, int boxHeight)
+        private SudokuPuzzle(int boxWidth, int boxHeight)
         {
             this.boxHeight = boxHeight;
             this.boxWidth = boxWidth;
-            winMask = ulong.MaxValue << (boxWidth * boxHeight);
+            possibleNodeValueCount = boxHeight * boxWidth;
+            winMask = ulong.MaxValue << possibleNodeValueCount;
 
             // Create the nodes
-            nodes = new SudokuNode[boxHeight * boxWidth, boxHeight * boxWidth];
-            for (int i = 0; i < boxHeight * boxWidth; i++)
+            nodes = new SudokuInternalNode[possibleNodeValueCount, possibleNodeValueCount];
+            for (int i = 0; i < possibleNodeValueCount; i++)
             {
-                for (int j = 0; j < boxHeight * boxWidth; j++)
+                for (int j = 0; j < possibleNodeValueCount; j++)
                 {
-                    nodes[i, j] = new SudokuNode(i, j, boxHeight * boxWidth);
+                    nodes[i, j] = new SudokuInternalNode(i, j, possibleNodeValueCount);
                 }
             }
         }
 
-        private SudokuGrid(string puzzle, int width, int height)
+        private SudokuPuzzle(string puzzle, int width, int height)
             : this(width, height)
         {
             CreateGridNodesFromPuzzle(puzzle, width, height);
@@ -94,21 +96,129 @@ namespace SudokuSolverLib
         }
         #endregion 
 
-        public void SetValue(int line, int column, int value)
+        /// <summary>
+        /// Sets a value in the grid. The line/column are 0-based indexes
+        /// </summary>
+        private void SetValue(int line, int column, int value)
         {
+            if (line < 0 || column < 0 || line > possibleNodeValueCount || column > possibleNodeValueCount)
+                throw new ArgumentException("The Line or Column specified are not inside the grid");
+
+            SudokuInternalNode node = nodes[line, column];
+
+            //if (node.HasValue)
+            //    throw new InvalidOperationException(string.Format("The node at ({0},{1}) already has a value", line, column));
+
             nodes[line, column].Node.Value = value;
-            nodes[line, column].Node.PartOfPuzzle = true;
             nodes[line, column].HasValue = true;
             RemoveValueFromNeighbours(line, column, value);
         }
 
-        private List<SudokuNode> RemoveValueFromNeighbours(int line, int col, int value)
+        public IEnumerable<SudokuNode> GetNodes()
         {
-            List<SudokuNode> updatedNodes = new List<SudokuNode>();
+            foreach (var item in nodes)
+            {
+                yield return item.Node;
+            }
+        }
 
-            SudokuNode node;
+        #region Solve the puzzle
+        public bool SolveGrid()
+        {
+            return SolveGrid(ArrayHelpers.Range(possibleNodeValueCount));
+        }
+
+        /// <summary>
+        /// This is an internal helper to create the minheap and use the values
+        /// </summary>
+        /// <param name="orderedValues"></param>
+        /// <returns></returns>
+        private bool SolveGrid(int[] orderedValues)
+        {
+            return SolveGridInternal(MinHeapFromGrid(), orderedValues);
+        }
+
+        /// <summary>
+        /// Drives the back-tracking algorithm
+        /// </summary>
+        private bool SolveGridInternal(Heap<SudokuInternalNode> stillToFix, int[] orderedValues)
+        {
+            // if we have a column with no potential values... that is bad :)
+            if (stillToFix.IsEmpty)
+            {
+                //are we done?
+                return ValidateSolution();
+            }
+            if (stillToFix.PeakAtRoot().PossibleValuesCount == 0)
+            {
+                return false;
+            }
+
+            var node = stillToFix.GetRoot();
+            ulong values = node.PossibleValues;
+
+            // depending if we are creating a puzzle or solving one
+            node.HasValue = true;
+            for (int i = 0; i < possibleNodeValueCount; i++)
+            {
+                if (IsSet(values, orderedValues[i]))
+                {
+                    continue;
+                }
+
+                if (TrySetValue(node, orderedValues[i] + 1, stillToFix, orderedValues))
+                    return true;
+            }
+
+            node.HasValue = false;
+
+            stillToFix.Insert(node);
+
+            return false;
+        }
+
+        /// <summary>
+        /// Tries to set a value for a node. 
+        /// </summary>
+        /// <returns>True if the value is in the right location and the puzzle is solved</returns>
+        private bool TrySetValue(SudokuInternalNode node, int value, Heap<SudokuInternalNode> stillToFix, int[] orderedValues)
+        {
+            node.Node.Value = value;
+
+            var updatedNodes = RemoveValueFromNeighbours(node.Node.Line, node.Node.Column, node.Node.Value); // new List<SudokuNode>();
+
+            // we need to re-sort the heap after we made the changes.
+            if (updatedNodes.Count > 0)
+            {
+                stillToFix.Resort();
+            }
+
+            var solved = SolveGridInternal(stillToFix, orderedValues);
+
+            if (solved)
+                return true;
+
+            //recover the previous state
+            foreach (var nn in updatedNodes)
+            {
+                nn.AddPossibleValue(value);
+            }
+
+            if (updatedNodes.Count > 0)
+            {
+                stillToFix.Resort();
+            }
+
+            return false;
+        }
+
+        private List<SudokuInternalNode> RemoveValueFromNeighbours(int line, int col, int value)
+        {
+            List<SudokuInternalNode> updatedNodes = new List<SudokuInternalNode>();
+
+            SudokuInternalNode node;
             // Check the line and column
-            for (int i = 0; i < boxHeight * boxWidth; i++)
+            for (int i = 0; i < possibleNodeValueCount; i++)
             {
                 if (i != line)
                 {
@@ -147,91 +257,65 @@ namespace SudokuSolverLib
             return updatedNodes;
         }
 
-        public IEnumerable<SudokuPuzzleNode> GetNodes()
+
+        /// <summary>
+        /// Validate that the solution is correct.
+        /// </summary>
+        /// <returns></returns>
+        private bool ValidateSolution()
         {
-            foreach (var item in nodes)
+            for (int i = 0; i < possibleNodeValueCount; i++)
             {
-                yield return item.Node;
-            }
-        }
+                ulong rezLine = ulong.MaxValue;
+                ulong rezCol = ulong.MaxValue;
 
-        public bool SolveGrid()
-        {
-            return SolveGrid(ArrayHelpers.CreateOrderedArray(boxHeight * boxWidth));
-        }
-
-        private bool SolveGrid(int[] orderedValues)
-        {
-            return SolveGridInternal(CreateHeapForPuzzle(), orderedValues);
-        }
-
-        private bool SolveGridInternal(Heap<SudokuNode> stillToFix, int[] orderedValues)
-        {
-            // if we have a column with no potential values... that is bad :)
-            if (stillToFix.IsEmpty)
-            {
-                //are we done?
-                return ValidateSolution();
-            }
-            if (stillToFix.PeakAtRoot().PossibleValuesCount == 0)
-            {
-                return false;
-            }
-
-            var node = stillToFix.GetRoot();
-            ulong values = node.PossibleValues;
-
-            // depending if we are creating a puzzle or solving one
-            node.HasValue = true;
-            for (int i = 0; i < boxHeight * boxWidth; i++)
-            {
-                if (IsSet(values, orderedValues[i]))
+                for (int line = 0; line < possibleNodeValueCount; line++)
                 {
-                    continue;
+                    // we haven't finished
+                    if (nodes[line, i].Node.Value < 0)
+                        return false;
+                    rezLine &= (ulong)~(1 << (nodes[line, i].Node.Value - 1));
+
+                    // we haven't finished
+                    if (nodes[i, line].Node.Value < 0)
+                        return false;
+                    rezCol &= (ulong)~(1 << (nodes[i, line].Node.Value - 1));
                 }
 
-                if (TrySetValue(node, orderedValues[i] + 1, stillToFix, orderedValues))
-                    return true;
+                if (rezLine != winMask || rezCol != winMask)
+                    return false;
             }
 
-            node.HasValue = false;
+            // validate the boxes
+            for (int line = 0; line < boxWidth; line++)
+            {
+                for (int col = 0; col < boxHeight; col++)
+                {
+                    ulong rezBox = ulong.MaxValue;
+                    for (int boxLine = line * boxHeight; boxLine < (line + 1) * boxHeight; boxLine++)
+                    {
+                        for (int boxCol = col * boxWidth; boxCol < (col + 1) * boxWidth; boxCol++)
+                        {
+                            // we haven't finished
+                            if (nodes[boxLine, boxCol].Node.Value < 0)
+                                return false;
+                            rezBox &= (ulong)~(1 << (nodes[boxLine, boxCol].Node.Value - 1));
+                        }
+                    }
 
-            stillToFix.Insert(node);
-
-            return false;
+                    if (rezBox != winMask)
+                        return false;
+                }
+            }
+            hasSolution = true;
+            return true;
         }
 
-        private bool TrySetValue(SudokuNode node, int value, Heap<SudokuNode> stillToFix, int[] orderedValues)
-        {
-            node.Node.Value = value;
+        #endregion
 
-            var updatedNodes = RemoveValueFromNeighbours(node.Node.Line, node.Node.Column, node.Node.Value); // new List<SudokuNode>();
-
-            // we need to re-sort the heap after we made the changes.
-            if (updatedNodes.Count > 0)
-            {
-                stillToFix.Resort();
-            }
-
-            var solved = SolveGridInternal(stillToFix, orderedValues);
-
-            if (solved)
-                return true;
-
-            //recover the previous state
-            foreach (var nn in updatedNodes)
-            {
-                nn.AddPossibleValue(value);
-            }
-
-            if (updatedNodes.Count > 0)
-            {
-                stillToFix.Resort();
-            }
-
-            return false;
-        }
-
+        /// <summary>
+        /// Parse the puzzle and set the values into the grid
+        /// </summary>
         private void CreateGridNodesFromPuzzle(string puzzle, int width, int height)
         {
             int line = 0;
@@ -277,7 +361,7 @@ namespace SudokuSolverLib
                             throw new FormatException(string.Format("Unexpected character '{0}' while parsing puzzle (line {1} col {2})", c, line + 1, textCol + 1));
                         }
 
-                        if (column >= boxHeight * boxWidth)
+                        if (column >= possibleNodeValueCount)
                         {
                             throw new ArgumentException("There is a mismatch between the size of the grid and the nodes identified in the puzzle");
                         }
@@ -305,65 +389,18 @@ namespace SudokuSolverLib
                 throw new ArgumentException("There is a mismatch between the size of the grid and the nodes identified in the puzzle");
         }
 
-
-        private bool ValidateSolution()
-        {
-            for (int i = 0; i < boxWidth * boxHeight; i++)
-            {
-                ulong rezLine = ulong.MaxValue;
-                ulong rezCol = ulong.MaxValue;
-
-                for (int line = 0; line < boxHeight * BoxWidth; line++)
-                {
-                    // we haven't finished
-                    if (nodes[line, i].Node.Value < 0)
-                        return false;
-                    rezLine &= (ulong)~(1 << (nodes[line, i].Node.Value - 1));
-
-                    // we haven't finished
-                    if (nodes[i, line].Node.Value < 0)
-                        return false;
-                    rezCol &= (ulong)~(1 << (nodes[i, line].Node.Value - 1));
-                }
-
-                if (rezLine != winMask || rezCol != winMask)
-                    return false;
-            }
-
-            // validate the boxes
-            for (int line = 0; line < boxWidth; line++)
-            {
-                for (int col = 0; col < boxHeight; col++)
-                {
-                    ulong rezBox = ulong.MaxValue;
-                    for (int boxLine = line * boxHeight; boxLine < (line + 1) * boxHeight; boxLine++)
-                    {
-                        for (int boxCol = col * boxWidth; boxCol < (col + 1) * boxWidth; boxCol++)
-                        {
-                            // we haven't finished
-                            if (nodes[boxLine, boxCol].Node.Value < 0)
-                                return false;
-                            rezBox &= (ulong)~(1 << (nodes[boxLine, boxCol].Node.Value - 1));
-                        }
-                    }
-
-                    if (rezBox != winMask)
-                        return false;
-                }
-            }
-            hasSolution = true;
-            return true;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsSet(ulong possibleValues, int index)
         {
             return (possibleValues & (ulong)(1 << index)) != (ulong)(1 << index);
         }
 
-        private Heap<SudokuNode> CreateHeapForPuzzle()
+        /// <summary>
+        /// Create a min heap of the not-yet-fixed nodes from the grid
+        /// </summary>
+        private Heap<SudokuInternalNode> MinHeapFromGrid()
         {
-            Heap<SudokuNode> mh = new MinSudokuHeap(boxHeight * boxWidth * boxHeight * boxWidth);
+            Heap<SudokuInternalNode> mh = new MinSudokuHeap(possibleNodeValueCount * possibleNodeValueCount);
 
             foreach (var node in nodes)
             {
@@ -380,9 +417,9 @@ namespace SudokuSolverLib
         {
             StringBuilder sb = new StringBuilder();
 
-            for (int i = 0; i < boxHeight * boxWidth; i++)
+            for (int i = 0; i < possibleNodeValueCount; i++)
             {
-                for (int j = 0; j < boxHeight * boxWidth; j++)
+                for (int j = 0; j < possibleNodeValueCount; j++)
                 {
                     sb.Append(nodes[i, j].HasValue ? nodes[i, j].Node.ValueToChar() : '.');
                 }

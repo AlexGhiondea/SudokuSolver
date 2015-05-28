@@ -3,14 +3,14 @@
 
 namespace SudokuSolverLib
 {
-    internal class MinSudokuHeap : Heap<SudokuNode>
+    internal class MinSudokuHeap : Heap<SudokuInternalNode>
     {
         public MinSudokuHeap(int storageSize)
             : base(storageSize)
         {
 
         }
-        protected override bool Sorter(SudokuNode left, SudokuNode right)
+        protected override bool Sorter(SudokuInternalNode left, SudokuInternalNode right)
         {
             return left.PossibleValuesCount < right.PossibleValuesCount;
         }

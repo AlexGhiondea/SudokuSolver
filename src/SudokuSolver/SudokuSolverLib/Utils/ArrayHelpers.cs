@@ -7,7 +7,7 @@ namespace SudokuSolverLib
 {
     internal static class ArrayHelpers
     {
-        public static int[] CreateOrderedArray(int arrayLength)
+        public static int[] Range(int arrayLength)
         {
             int[] arr = new int[arrayLength];
             for (int i = 0; i < arrayLength; i++)
@@ -18,13 +18,15 @@ namespace SudokuSolverLib
             return arr;
         }
 
-        public static int[] CreateArrayOfRandomValues(Random r, int arrayLength)
+        public static int[] RandomizedRange(int arrayLength, Random randomizer)
         {
-            int[] arr = CreateOrderedArray(arrayLength);
+            // Create a regular range
+            int[] arr = Range(arrayLength);
 
+            // Shuffle the range 
             for (int i = 0; i < arrayLength; i++)
             {
-                var val = r.Next(0, arrayLength);
+                var val = randomizer.Next(0, arrayLength);
 
                 int temp = arr[i];
                 arr[i] = arr[val];
@@ -32,6 +34,5 @@ namespace SudokuSolverLib
             }
             return arr;
         }
-
     }
 }

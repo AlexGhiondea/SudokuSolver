@@ -14,6 +14,10 @@ namespace SudokuSolver.TestApp
     {
         static void Main(string[] args)
         {
+
+            Solve3x3();
+            return;
+
             Stopwatch sw = new Stopwatch();
 
             var grid = SudokuGrid.CreatePuzzle(3, 3, 21);

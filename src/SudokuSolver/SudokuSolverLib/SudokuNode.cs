@@ -13,8 +13,6 @@ namespace SudokuSolverLib
 
         public bool HasValue; // { get; set; }
 
-        public SudokuNode[] neighbours;
-
         public int PossibleValuesCount;// { get; set; }
 
         public ulong PossibleValues = ulong.MaxValue;
@@ -62,26 +60,6 @@ namespace SudokuSolverLib
             PossibleValuesCount--;
             Clear(value - 1);
             return true;
-        }
-
-        public void SetNeighbours(IEnumerable<SudokuNode> nodes)
-        {
-            neighbours = nodes.ToArray();
-        }
-
-        public List<SudokuNode> RemoveValueFromNeighbours(int value)
-        {
-            var changed = new List<SudokuNode>();
-            for (int i = 0; i < neighbours.Length; i++)
-            {
-                if (!neighbours[i].HasValue)
-                {
-                    // if the node removed the value it means it was part of its list of potential values.
-                    if (neighbours[i].RemovePossibleValue(value))
-                        changed.Add(neighbours[i]);
-                }
-            }
-            return changed;
         }
 
         public override string ToString()

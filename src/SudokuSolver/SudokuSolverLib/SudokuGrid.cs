@@ -73,14 +73,24 @@ namespace SudokuSolverLib
                     nodes[i, j] = new SudokuNode(i, j, boxHeight * boxWidth);
                 }
             }
-
-            ComputeNeighbours(boxWidth, boxHeight);
         }
 
         private SudokuGrid(string puzzle, int width, int height)
             : this(width, height)
         {
             CreateGridNodesFromPuzzle(puzzle, width, height);
+
+            // Update the neighbours based on the information in the puzzle.
+            for (int line = 0; line < width * height; line++)
+            {
+                for (int col = 0; col < height * width; col++)
+                {
+                    if (nodes[line, col].HasValue)
+                    {
+                        RemoveValueFromNeighbours(line, col, nodes[line, col].Node.Value);
+                    }
+                }
+            }
         }
         #endregion 
 
@@ -89,7 +99,60 @@ namespace SudokuSolverLib
             nodes[line, column].Node.Value = value;
             nodes[line, column].Node.PartOfPuzzle = true;
             nodes[line, column].HasValue = true;
-            nodes[line, column].RemoveValueFromNeighbours(value);
+            RemoveValueFromNeighbours(line, column, value);
+        }
+
+        private List<SudokuNode> RemoveValueFromNeighbours(int line, int col, int value)
+        {
+            List<SudokuNode> updatedNodes = new List<SudokuNode>();
+
+            SudokuNode node;
+            // Check the line and column
+            for (int i = 0; i < boxHeight * boxWidth; i++)
+            {
+                if (i != line)
+                {
+                    node = nodes[i, col];
+                    if (!node.HasValue && node.RemovePossibleValue(value))
+                    {
+                        updatedNodes.Add(node);
+                    }
+                }
+
+                if (i != col)
+                {
+                    node = nodes[line, i];
+                    if (!node.HasValue && node.RemovePossibleValue(value))
+                    {
+                        updatedNodes.Add(node);
+                    }
+                }
+            }
+
+            // check the box
+            for (int boxLine = (line / boxHeight) * boxHeight; boxLine < ((line / boxHeight) + 1) * boxHeight; boxLine++)
+            {
+                for (int boxCol = (col / boxWidth) * boxWidth; boxCol < ((col / boxWidth) + 1) * boxWidth; boxCol++)
+                {
+                    if (boxLine != line && boxCol != col)
+                    {
+                        node = nodes[boxLine, boxCol];
+                        if (!node.HasValue && node.RemovePossibleValue(value))
+                        {
+                            updatedNodes.Add(node);
+                        }
+                    }
+                }
+            }
+            return updatedNodes;
+
+            //nodes[line, col].SetNeighbours(n);
+
+            //if (nodes[line, col].HasValue)
+            //{
+            //    nodes[line, col].RemoveValueFromNeighbours(nodes[line, col].Node.Value);
+            //}
+            //return n;
         }
 
         public IEnumerable<SudokuPuzzleNode> GetNodes()
@@ -150,21 +213,10 @@ namespace SudokuSolverLib
         {
             node.Node.Value = value;
 
-            var changed = new List<SudokuNode>();
-            foreach (var nn in node.neighbours)
-            {
-                if (nn.HasValue == false)
-                {
-                    if (nn.RemovePossibleValue(value))
-                    {
-                        // if we removed a value, we need to rebalance the heap
-                        changed.Add(nn);
-                    }
-                }
-            }
+            var updatedNodes = RemoveValueFromNeighbours(node.Node.Line, node.Node.Column, node.Node.Value); // new List<SudokuNode>();
 
             // we need to re-sort the heap after we made the changes.
-            if (changed.Count > 0)
+            if (updatedNodes.Count > 0)
             {
                 stillToFix.Resort();
             }
@@ -175,12 +227,12 @@ namespace SudokuSolverLib
                 return true;
 
             //recover the previous state
-            foreach (var nn in changed)
+            foreach (var nn in updatedNodes)
             {
                 nn.AddPossibleValue(value);
             }
 
-            if (changed.Count > 0)
+            if (updatedNodes.Count > 0)
             {
                 stillToFix.Resort();
             }
@@ -238,7 +290,11 @@ namespace SudokuSolverLib
                             throw new ArgumentException("There is a mismatch between the size of the grid and the nodes identified in the puzzle");
                         }
 
-                        nodes[line, column].SetValue(value);
+                        // If we actually found a value, set it.
+                        if (value > -1)
+                        {
+                            nodes[line, column].SetValue(value);
+                        }
 
                         column++;
                         textCol++;
@@ -257,43 +313,6 @@ namespace SudokuSolverLib
                 throw new ArgumentException("There is a mismatch between the size of the grid and the nodes identified in the puzzle");
         }
 
-        private void ComputeNeighbours(int width, int height)
-        {
-            for (int line = 0; line < width * height; line++)
-            {
-                for (int col = 0; col < height * width; col++)
-                {
-                    List<SudokuNode> n = new List<SudokuNode>();
-                    // add the line
-                    // add the column
-                    for (int i = 0; i < width * height; i++)
-                    {
-                        if (i != line)
-                            n.Add(nodes[i, col]);
-
-                        if (i != col)
-                            n.Add(nodes[line, i]);
-                    }
-
-                    // add the box
-                    for (int boxLine = (line / height) * height; boxLine < ((line / height) + 1) * height; boxLine++)
-                    {
-                        for (int boxCol = (col / width) * width; boxCol < ((col / width) + 1) * width; boxCol++)
-                        {
-                            if (boxLine != line && boxCol != col)
-                                n.Add(nodes[boxLine, boxCol]);
-                        }
-                    }
-
-                    nodes[line, col].SetNeighbours(n);
-
-                    if (nodes[line, col].HasValue)
-                    {
-                        nodes[line, col].RemoveValueFromNeighbours(nodes[line, col].Node.Value);
-                    }
-                }
-            }
-        }
 
         private bool ValidateSolution()
         {
@@ -364,7 +383,6 @@ namespace SudokuSolverLib
 
             return mh;
         }
-
 
         public override string ToString()
         {

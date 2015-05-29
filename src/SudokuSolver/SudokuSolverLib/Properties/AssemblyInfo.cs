@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SudokuSolverLib")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("General Sudoku solver library")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SudokuSolverLib")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCompany("Alex Ghiondea")]
+[assembly: AssemblyProduct("General Sudoku Solver Library")]
+[assembly: AssemblyCopyright("© Alex Ghiondea 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

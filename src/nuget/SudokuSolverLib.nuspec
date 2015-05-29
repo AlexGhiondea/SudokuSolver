@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>SudokuSolverLib</id>
+    <version>1.0.0.0</version>
+    <title>SudokuSolverLib</title>
+    <authors>Alex Ghiondea</authors>
+    <owners>Alex Ghiondea</owners>
+    <projectUrl>https://github.com/AlexGhiondea/SudokuSolver</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>General Sudoku solver library</description>
+    <releaseNotes>Initial release</releaseNotes>
+    <copyright>(c) Alex Ghiondea 2015</copyright>
+    <tags>Sudoku Solver Puzzle General</tags>
+  </metadata>
+<files>
+  <file src="..\..\bin\release\SudokuSolverLib.dll" target="lib\net45\" />
+</files>
+</package>

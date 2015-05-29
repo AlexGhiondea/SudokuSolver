@@ -40,7 +40,7 @@ namespace SudokuSolverTests
 
         private static void CheckSolution(string puzzle, int boxWidth, int boxHeight)
         {
-            SudokuGrid grid = SudokuGrid.CreateGrid(puzzle, boxWidth, boxHeight);
+            SudokuPuzzle grid = SudokuPuzzle.FromString(puzzle, boxWidth, boxHeight);
 
             Assert.False(grid.SolveGrid());
         }

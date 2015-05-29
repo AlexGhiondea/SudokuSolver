@@ -1,0 +1,1 @@
+<Playlist Version="1.0"><Add Test="SudokuSolverLib.Tests.HeapTests.TestPushPopWithEmptyHeap" /><Add Test="SudokuSolverLib.Tests.HeapTests.TestInsert" /><Add Test="SudokuSolverLib.Tests.HeapTests.TestPopUntilEmpty" /><Add Test="SudokuSolverLib.Tests.HeapTests.TestPopFromEmpty" /></Playlist>

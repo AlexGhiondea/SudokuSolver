@@ -6,33 +6,26 @@ using System.Collections.Generic;
 
 namespace SudokuSolverLib
 {
-    public class Heap<T>
+    public abstract class Heap<T>
     {
         private const int DEFAULT_STORAGE_SIZE = 32;
 
-        private Func<T, T, bool> _sortFunc;
+        protected abstract bool Sorter(T first, T second);
+
         private T[] _storage;
         private int _size = 0;
 
-        public Heap(Func<T, T, bool> sortFunc)
-            : this(sortFunc, DEFAULT_STORAGE_SIZE)
+        public Heap()
+            : this(DEFAULT_STORAGE_SIZE)
         {
-            _sortFunc = sortFunc;
         }
 
-        public Heap(Func<T, T, bool> sortFunc, int storageSize)
+        public Heap(int storageSize)
         {
+            if (storageSize < 0)
+                throw new ArgumentException("Initial storage size must be a positive number");
+
             _storage = new T[storageSize];
-            _sortFunc = sortFunc;
-        }
-
-        public Heap(IEnumerable<T> items, Func<T, T, bool> sortFunc, int storageSize)
-            : this(sortFunc, storageSize)
-        {
-            foreach (var item in items)
-            {
-                Insert(item);
-            }
         }
 
         public void Insert(T node)
@@ -53,7 +46,7 @@ namespace SudokuSolverLib
             var parent = (index - 1) / 2;
 
             // Move the element up until it's parent is smaller than it
-            while (index > 0 && !_sortFunc(_storage[parent], _storage[index]))
+            while (index > 0 && !Sorter(_storage[parent], _storage[index]))
             {
                 Swap(index, parent);
                 index = parent;
@@ -64,10 +57,15 @@ namespace SudokuSolverLib
 
         public T GetRoot()
         {
+            if (_size == 0)
+                throw new InvalidOperationException("No elements in the heap");
+
             T min = _storage[0];
             _storage[0] = _storage[--_size];
 
             Heapify(0);
+            if (_size < 0)
+                _size = 0;
 
             return min;
         }
@@ -107,9 +105,9 @@ namespace SudokuSolverLib
             int right = index * 2 + 2;
             int smallest = index;
 
-            if (left < _size && _sortFunc(_storage[left], _storage[index]))
+            if (left < _size && Sorter(_storage[left], _storage[index]))
                 smallest = left;
-            if (right < _size && _sortFunc(_storage[right], _storage[smallest]))
+            if (right < _size && Sorter(_storage[right], _storage[smallest]))
                 smallest = right;
 
             if (smallest != index)
@@ -126,9 +124,9 @@ namespace SudokuSolverLib
             int right = index * 2 + 2;
             int smallest = index;
 
-            if (left < _size && _sortFunc(_storage[left], _storage[index]))
+            if (left < _size && Sorter(_storage[left], _storage[index]))
                 smallest = left;
-            if (right < _size && _sortFunc(_storage[right], _storage[smallest]))
+            if (right < _size && Sorter(_storage[right], _storage[smallest]))
                 smallest = right;
 
             if (smallest != index)
@@ -141,6 +139,33 @@ namespace SudokuSolverLib
 
             if (right < _size)
                 Sort(right);
+        }
+    }
+
+    public class MinHeap<T> : Heap<T> where T : IComparable<T>
+    {
+        public MinHeap(int initialStorageSize)
+            : base(initialStorageSize)
+        {
+
+        }
+
+        public MinHeap()
+            : base()
+        {
+
+        }
+        protected override bool Sorter(T first, T second)
+        {
+            return first.CompareTo(second) < 0;
+        }
+    }
+
+    public class MaxHeap<T> : Heap<T> where T : IComparable<T>
+    {
+        protected override bool Sorter(T first, T second)
+        {
+            return first.CompareTo(second) > 0;
         }
     }
 }

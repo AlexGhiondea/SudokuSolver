@@ -275,12 +275,18 @@ FC17A8GB6924D3E5
             CheckSolution(puzzle, solution, 4, 4);
         }
 
+        private static void SolvePuzzleCreated()
+        {
+            Assert.True(SudokuPuzzle.Create(3, 3, 21).SolveGrid());
+        }
+
+
         private static void CheckSolution(string puzzle, string solutionString, int boxWidth, int boxHeight)
         {
-            SudokuGrid grid = SudokuGrid.CreateGrid(puzzle, boxWidth, boxHeight);
+            SudokuPuzzle grid = SudokuPuzzle.FromString(puzzle, boxWidth, boxHeight);
 
             Assert.True(grid.SolveGrid());
-            Assert.Equal<string>(grid.ToString(), SudokuGrid.CreateGrid(solutionString, boxWidth, boxHeight).ToString());
+            Assert.Equal<string>(grid.ToString(), SudokuPuzzle.FromString(solutionString, boxWidth, boxHeight).ToString());
         }
     }
 }

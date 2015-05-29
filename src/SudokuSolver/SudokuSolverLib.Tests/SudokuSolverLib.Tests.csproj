@@ -51,6 +51,8 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="ArrayHelpersTests.cs" />
+    <Compile Include="HeapTests.cs" />
     <Compile Include="InputValidationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SudokuPuzzles.NoSolution.cs" />

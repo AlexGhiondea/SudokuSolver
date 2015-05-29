@@ -4,7 +4,7 @@
 using System.Linq;
 using System.Text;
 
-namespace SudokuSolverLib
+namespace SudokuSolverLib.Helpers
 {
     public static class GridHelpers
     {

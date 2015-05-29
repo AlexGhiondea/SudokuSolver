@@ -3,7 +3,7 @@
 
 using System;
 
-namespace SudokuSolverLib
+namespace SudokuSolverLib.Helpers
 {
     internal static class ArrayHelpers
     {

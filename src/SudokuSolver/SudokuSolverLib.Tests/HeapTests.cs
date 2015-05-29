@@ -4,6 +4,7 @@
 using System;
 using SudokuSolverLib;
 using Xunit;
+using SudokuSolverLib.Helpers;
 
 namespace SudokuSolverLib.Tests
 {

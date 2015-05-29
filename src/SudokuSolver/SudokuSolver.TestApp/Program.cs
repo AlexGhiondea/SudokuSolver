@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SudokuSolverLib;
+using SudokuSolverLib.Helpers;
 using System.Diagnostics;
 
 namespace SudokuSolver.TestApp

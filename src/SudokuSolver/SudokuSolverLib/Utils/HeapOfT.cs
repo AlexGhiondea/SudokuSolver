@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SudokuSolverLib
+namespace SudokuSolverLib.Helpers
 {
     public abstract class Heap<T>
     {

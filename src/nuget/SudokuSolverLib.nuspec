@@ -2,16 +2,17 @@
 <package >
   <metadata>
     <id>SudokuSolverLib</id>
-    <version>1.0.0.2</version>
-    <title>SudokuSolverLib</title>
+    <version>1.0.0.3</version>
+    <title>Sudoku Solver Lib</title>
     <authors>Alex Ghiondea</authors>
     <owners>Alex Ghiondea</owners>
     <projectUrl>https://github.com/AlexGhiondea/SudokuSolver</projectUrl>
+    <licenseUrl>https://raw.githubusercontent.com/AlexGhiondea/SudokuSolver/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>General Sudoku solver library</description>
+    <description>General Sudoku solver and creator library</description>
     <releaseNotes>Initial release</releaseNotes>
     <copyright>(c) Alex Ghiondea 2015</copyright>
-    <tags>Sudoku Solver Puzzle General</tags>
+    <tags>Sudoku Solver Puzzle General Creator Generator</tags>
   </metadata>
 <files>
   <file src="..\..\bin\publish\SudokuSolverLib.dll" target="lib\net45\" />

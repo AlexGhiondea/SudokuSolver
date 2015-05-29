@@ -48,7 +48,7 @@
     <Compile Include="SudokuPuzzle.cs" />
     <Compile Include="SudokuInternalNode.cs" />
     <Compile Include="SudokuNode.cs" />
-    <Compile Include="Utils\MinSudokuHeap.cs" />
+    <Compile Include="MinSudokuHeap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

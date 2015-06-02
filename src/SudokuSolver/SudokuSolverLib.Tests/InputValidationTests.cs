@@ -36,6 +36,13 @@ namespace SudokuSolverLibTests
         }
 
         [Fact]
+        public static void ParseInvalidPuzzle()
+        {
+            Assert.Throws<ArgumentException>(() => SudokuPuzzle.FromString(@"1...
+2...", 2, 2));
+        }
+
+        [Fact]
         public static void NotEnoughNodesSpecified()
         {
             Assert.Throws<ArgumentException>(() => SudokuPuzzle.FromString("          ", 16, 16));

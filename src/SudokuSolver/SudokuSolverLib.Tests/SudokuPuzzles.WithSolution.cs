@@ -23,8 +23,7 @@ namespace SudokuSolverTests
             var puzzle = @"..3.
 .1..
 ..4.
-.4..
-";
+.4..";
             var solutionString = @"4231
 3124
 1342
@@ -58,8 +57,7 @@ namespace SudokuSolverTests
 1.4...
 ...4.3
 .4..2.
-..5..6
-";
+..5..6";
             string solution = @"521364
 462531
 134652
@@ -71,16 +69,15 @@ namespace SudokuSolverTests
         [Fact]
         private static void Solve3x3_1()
         {
-            var puzzle = @". . . . . . . . .
-. . . . . 3 . 8 5
-. . 1 . 2 . . . .
-. . . 5 . 7 . . .
-. . 4 . . . 1 . .
-. 9 . . . . . . .
-5 . . . . . . 7 3
-. . 2 . 1 . . . .
-. . . . 4 . . . 9
-";
+            var puzzle = @".........
+.....3.85
+..1.2....
+...5.7...
+..4...1..
+.9.......
+5......73
+..2.1....
+....4...9";
             string solution = @"987654321
 246173985
 351928746
@@ -96,15 +93,15 @@ namespace SudokuSolverTests
         [Fact]
         private static void Solve3x3_2()
         {
-            var puzzle = @"1 2.  3. .  . . 4
-3 5.  . . .  1. .
-. . 4. . .  . . .
-. . 5  4. .  2. .
-6. .  . 7.  . . .
-. . .  . . 8. 9.
-. . 3  1. .  5. .
-. . .  . . 9. 7.
-. . .  . 6.  . . 8 ";
+            var puzzle = @"12.3....4
+35....1..
+..4......
+..54..2..
+6...7....
+.....8.9.
+..31..5..
+.....9.7.
+....6...8";
 
             string solution = @"126395784
 359847162
@@ -122,16 +119,15 @@ namespace SudokuSolverTests
         [Fact]
         private static void Solve3x3_3()
         {
-            var puzzle = @". . .  . . .  . 3 9  
-. . .  . . 1  . . 5  
-. . 3  . 5 .  8 . .  
-. . 8  . 9 .  . . 6  
-. 7 .  . . 2  . . .  
-1 . .  4 . .  . . .  
-. . 9  . 8 .  . 5 .  
-. 2 .  . . .  6 . .  
-4 . .  7 . .  . . . 
-";
+            var puzzle = @".......39
+.....1..5
+..3.5.8..
+..8.9...6
+.7...2...
+1..4.....
+..9.8..5.
+.2....6..
+4..7.....";
 
             string solution = @"751846239
 892371465
@@ -149,16 +145,15 @@ namespace SudokuSolverTests
         [Fact]
         private static void Solve3x3_4()
         {
-            var puzzle = @". . 3  . . .  . . .  
-4 . .  . 8 .  . 3 6  
-. . 8  . . .  1 . .  
-. 4 .  . 6 .  . 7 3  
-. . .  9 . .  . . .  
-. . .  . . 2  . . 5  
-. . 4  . 7 .  . 6 8  
-6 . .  . . .  . . .  
-7 . .  6 . .  5 . .
-";
+            var puzzle = @"..3......
+4...8..36
+..8...1..
+.4..6..73
+...9.....
+.....2..5
+..4.7..68
+6........
+7..6..5..";
 
             string solution = @"123456789
 457189236
@@ -185,8 +180,7 @@ namespace SudokuSolverTests
 .3..4...2
 1.4......
 .9...6...
-.78.5.4..
-";
+.78.5.4..";
 
             string solution = @"956183274
 421795638
@@ -216,8 +210,7 @@ c...a...4.5.
 ...b1.a4.32.
 5.b..a.29...
 ...8c...5.46
-.4...3....b.
-";
+.4...3....b.";
 
             string solution = @"6A1594B87C32
 B94C3256A817
@@ -252,8 +245,7 @@ b....6.........7
 6....d9.37....c.
 fc17a....9......
 .5.b....c.g.9.2.
-.d.e3..7.1.5...6
-";
+.d.e3..7.1.5...6";
 
             string solution = @"5BGFE9A3D4C71682
 4AD1C5B8926E7GF3
@@ -275,6 +267,7 @@ FC17A8GB6924D3E5
             CheckSolution(puzzle, solution, 4, 4);
         }
 
+        [Fact]
         private static void SolvePuzzleCreated()
         {
             Assert.True(SudokuPuzzle.Create(3, 3, 21).SolveGrid());
@@ -284,6 +277,13 @@ FC17A8GB6924D3E5
         private static void CheckSolution(string puzzle, string solutionString, int boxWidth, int boxHeight)
         {
             SudokuPuzzle grid = SudokuPuzzle.FromString(puzzle, boxWidth, boxHeight);
+
+            // Make sure the parsed puzzle is the same as the input puzzle
+            Assert.Equal(grid.ToString().Trim().ToUpperInvariant(), puzzle.Trim().ToUpperInvariant());
+            Assert.Equal(boxWidth, grid.BoxWidth);
+            Assert.Equal(boxHeight, grid.BoxHeight);
+            Assert.Equal(false, grid.HasSolution);
+
 
             Assert.True(grid.SolveGrid());
             Assert.Equal<string>(grid.ToString(), SudokuPuzzle.FromString(solutionString, boxWidth, boxHeight).ToString());

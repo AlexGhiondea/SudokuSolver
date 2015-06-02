@@ -267,7 +267,7 @@ namespace SudokuSolverLib
         /// Validate that the solution is correct.
         /// </summary>
         /// <returns></returns>
-        private bool ValidateSolution()
+        internal bool ValidateSolution()
         {
             for (int i = 0; i < possibleNodeValueCount; i++)
             {

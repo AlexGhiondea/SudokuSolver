@@ -1,27 +1,26 @@
 ﻿// Copyright (c) Alex Ghiondea. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using SudokuSolverLib;
-using Xunit;
 using SudokuSolverLib.Helpers;
+using System;
+using Xunit;
 
 namespace SudokuSolverLib.Tests
 {
-    public class HeapTests
+    public class MaxHeapTests
     {
         [Fact]
-        public void TestInsert()
+        public void MaxHeap_TestInsert()
         {
-            MinHeap<int> mh = new MinHeap<int>();
+            MaxHeap<int> mh = new MaxHeap<int>();
             Assert.True(mh.IsEmpty);
-            for (int i = 10; i > 0; i--)
+            for (int i = 0; i < 10; i++)
             {
                 mh.Insert(i);
                 Assert.False(mh.IsEmpty);
             }
 
-            for (int i = 1; i <= 10; i++)
+            for (int i = 9; i >= 0; i--)
             {
                 int peakValue = mh.PeakAtRoot();
 
@@ -34,18 +33,18 @@ namespace SudokuSolverLib.Tests
         }
 
         [Fact]
-        public void TestPopFromEmpty()
+        public void MaxHeap_TestPopFromEmpty()
         {
-            MinHeap<int> mh = new MinHeap<int>();
+            MaxHeap<int> mh = new MaxHeap<int>();
 
             Assert.True(mh.IsEmpty);
-            Assert.Throws<InvalidOperationException>(()=> mh.GetRoot());
+            Assert.Throws<InvalidOperationException>(() => mh.GetRoot());
         }
 
         [Fact]
-        public void TestPopUntilEmpty()
+        public void MaxHeap_TestPopUntilEmpty()
         {
-            MinHeap<int> mh = new MinHeap<int>();
+            MaxHeap<int> mh = new MaxHeap<int>(1);
             mh.Insert(1);
 
             Assert.Equal(1, mh.GetRoot());
@@ -54,9 +53,9 @@ namespace SudokuSolverLib.Tests
         }
 
         [Fact]
-        public void TestPushPopWithEmptyHeap()
+        public void MaxHeap_TestPushPopWithEmptyHeap()
         {
-            MinHeap<int> mh = new MinHeap<int>();
+            MaxHeap<int> mh = new MaxHeap<int>();
             mh.Insert(1);
             Assert.Equal(1, mh.GetRoot());
             Assert.True(mh.IsEmpty);
@@ -69,9 +68,20 @@ namespace SudokuSolverLib.Tests
         }
 
         [Fact]
-        public void NegativeInitialStorage_Negative()
+        public void MaxHeap_NegativeInitialStorage_Negative()
         {
-            Assert.Throws<ArgumentException>(() => new MinHeap<int>(-1));
+            Assert.Throws<ArgumentException>(() => new MaxHeap<int>(-1));
+        }
+
+        [Fact]
+        public void MaxHeap_ForceResize()
+        {
+            MaxHeap<int> heap = new MaxHeap<int>(1);
+            heap.Insert(2);
+            heap.Insert(1);
+
+            Assert.Equal(2, heap.GetRoot());
+            Assert.Equal(1, heap.GetRoot());
         }
 
     }

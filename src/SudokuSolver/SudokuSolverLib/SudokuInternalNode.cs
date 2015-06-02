@@ -8,7 +8,7 @@ using System.Text;
 
 namespace SudokuSolverLib
 {
-    internal class SudokuInternalNode : IComparable<SudokuInternalNode>
+    internal class SudokuInternalNode
     {
         public readonly SudokuNode Node;
 
@@ -37,9 +37,6 @@ namespace SudokuSolverLib
 
         public void AddPossibleValue(int value)
         {
-            if (!IsSet(value - 1))
-                return;
-
             PossibleValuesCount++;
             Set(value - 1);
         }
@@ -55,26 +52,26 @@ namespace SudokuSolverLib
             return true;
         }
 
-        public override string ToString()
-        {
-            if (!HasValue)
-            {
-                string values = string.Empty;
-                for (int i = 0; i < MaxNodeValues; i++)
-                {
-                    if (!IsSet(i))
-                    {
-                        values += i;
-                    }
-                }
+        //public override string ToString()
+        //{
+        //    if (!HasValue)
+        //    {
+        //        string values = string.Empty;
+        //        for (int i = 0; i < MaxNodeValues; i++)
+        //        {
+        //            if (!IsSet(i))
+        //            {
+        //                values += i;
+        //            }
+        //        }
 
-                return string.Format("{0} - ({1},{2}) --> values:{3}", PossibleValuesCount, Node.Line, Node.Column, values);
-            }
-            else
-            {
-                return string.Format("({0},{1}) --> value:{2}", Node.Line, Node.Column, Node.Value);
-            }
-        }
+        //        return string.Format("{0} - ({1},{2}) --> values:{3}", PossibleValuesCount, Node.Line, Node.Column, values);
+        //    }
+        //    else
+        //    {
+        //        return string.Format("({0},{1}) --> value:{2}", Node.Line, Node.Column, Node.Value);
+        //    }
+        //}
 
         #region Bitwise helpers
         private void Clear(int index)
@@ -90,11 +87,6 @@ namespace SudokuSolverLib
         private bool IsSet(int index)
         {
             return (PossibleValues & (ulong)(1 << index)) != (ulong)(1 << index);
-        }
-
-        public int CompareTo(SudokuInternalNode other)
-        {
-            return PossibleValuesCount.CompareTo(other.PossibleValuesCount);
         }
 
         #endregion

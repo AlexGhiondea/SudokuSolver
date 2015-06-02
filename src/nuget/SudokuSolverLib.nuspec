@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SudokuSolverLib</id>
-    <version>1.0.0.3</version>
+    <version>1.0.0.4</version>
     <title>Sudoku Solver Lib</title>
     <authors>Alex Ghiondea</authors>
     <owners>Alex Ghiondea</owners>

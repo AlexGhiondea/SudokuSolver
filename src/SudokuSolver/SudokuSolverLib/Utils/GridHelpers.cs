@@ -47,7 +47,7 @@ namespace SudokuSolverLib.Helpers
 
                     line1.Append("   ");
                     line2.AppendFormat(" {0} ", node.ValueToChar() != '0' ? node.ValueToChar() : '.');
-                    line3.Append("   ");
+                    line3.AppendFormat(" {0} ", node.PartOfPuzzle ? "-" : " ");
 
                     line1.Append(" ");
                     line2.Append(" ");

@@ -56,5 +56,17 @@ namespace SudokuSolverLibTests
 43213
 ....3", 2, 2));
         }
+
+        [Fact]
+        public static void InvalidCreateParameters()
+        {
+            Assert.Throws<ArgumentException>(() => SudokuPuzzle.Create(0, 0, 0));
+            Assert.Throws<ArgumentException>(() => SudokuPuzzle.Create(2, 2, -1));
+            Assert.Throws<ArgumentException>(() => SudokuPuzzle.Create(2, 2, 32));
+            Assert.Throws<ArgumentException>(() => SudokuPuzzle.Create(-2, 2, 2));
+            Assert.Throws<ArgumentException>(() => SudokuPuzzle.Create(2, -2, 2));
+
+            Assert.Throws<ArgumentException>(() => SudokuPuzzle.Create(16, 16, 200));
+        }
     }
 }

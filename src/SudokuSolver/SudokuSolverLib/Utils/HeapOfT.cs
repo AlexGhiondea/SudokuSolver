@@ -64,8 +64,6 @@ namespace SudokuSolverLib.Helpers
             _storage[0] = _storage[--_size];
 
             Heapify(0);
-            if (_size < 0)
-                _size = 0;
 
             return min;
         }
@@ -77,18 +75,6 @@ namespace SudokuSolverLib.Helpers
         public void Resort()
         {
             Sort(0);
-        }
-
-        public void PrintHeap(int pos = 0, string indent = "")
-        {
-            if (pos >= _size || _storage[pos] == null)
-                return;
-
-            PrintHeap(pos * 2 + 1, indent + " ");
-
-            Console.WriteLine(indent + _storage[pos].ToString());
-
-            PrintHeap(pos * 2 + 2, indent + " ");
         }
 
         private void Swap(int index, int smallest)
@@ -163,6 +149,18 @@ namespace SudokuSolverLib.Helpers
 
     public class MaxHeap<T> : Heap<T> where T : IComparable<T>
     {
+        public MaxHeap(int initialStorageSize)
+            : base(initialStorageSize)
+        {
+
+        }
+
+        public MaxHeap()
+            : base()
+        {
+
+        }
+
         protected override bool Sorter(T first, T second)
         {
             return first.CompareTo(second) > 0;

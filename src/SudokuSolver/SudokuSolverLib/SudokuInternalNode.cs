@@ -10,7 +10,7 @@ namespace SudokuSolverLib
 {
     internal class SudokuInternalNode : IComparable<SudokuInternalNode>
     {
-        public SudokuNode Node { get; set; }
+        public readonly SudokuNode Node;
 
         public bool HasValue;
 

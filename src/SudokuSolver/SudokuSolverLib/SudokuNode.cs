@@ -8,8 +8,8 @@ namespace SudokuSolverLib
     /// </summary>
     public class SudokuNode
     {
-        public int Line { get; set; }
-        public int Column { get; set; }
+        public readonly int Line;
+        public readonly int Column;
         public int Value { get; set; }
         public bool PartOfPuzzle { get; set; }
 

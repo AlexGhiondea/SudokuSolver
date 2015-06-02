@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using SudokuSolverLib.Helpers;
+using SudokuSolverLib.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,20 +42,22 @@ namespace SudokuSolverLib
 
         public static SudokuPuzzle Create(int boxWidth, int boxHeight, int hintsCount)
         {
+            Random randomizer = new Random((int)DateTime.Now.Ticks);
+            ValuesProvider randomizedValuesProvider = new ValuesProvider(boxWidth * boxHeight, randomizer);
+
             // Create a new grid by solving an empty grid using a randomized order of picking values
             SudokuPuzzle grid = new SudokuPuzzle(boxWidth, boxHeight);
-            Random r = new Random((int)DateTime.Now.Ticks);
-            grid.SolveGrid(ArrayHelpers.RandomizedRange(boxWidth * boxHeight, r));
+            grid.SolveGrid(randomizedValuesProvider);
 
             // Create a new grid by taking hintsCount hints from the solved grid.
-            int[] hintsLocation = ArrayHelpers.RandomizedRange(boxHeight * boxWidth * boxHeight * boxWidth, r);
+            int[] hintsLocation = ArrayHelpers.RandomizedRange(boxHeight * boxWidth * boxHeight * boxWidth, randomizer);
 
             SudokuPuzzle resultGrid = new SudokuPuzzle(boxWidth, boxHeight);
 
             var x = grid.GetNodes().ToArray();
             for (int i = 0; i < hintsCount; i++)
             {
-                resultGrid.SetValue(x[hintsLocation[i]].Line, x[hintsLocation[i]].Column, x[hintsLocation[i]].Value);
+                resultGrid.SetValue(x[hintsLocation[i]].Line, x[hintsLocation[i]].Column, x[hintsLocation[i]].Value, true);
             }
 
             return resultGrid;
@@ -97,21 +100,12 @@ namespace SudokuSolverLib
         }
         #endregion 
 
-        /// <summary>
-        /// Sets a value in the grid. The line/column are 0-based indexes
-        /// </summary>
-        private void SetValue(int line, int column, int value)
+        private void SetValue(int line, int column, int value, bool partOfPuzzle)
         {
-            if (line < 0 || column < 0 || line > possibleNodeValueCount || column > possibleNodeValueCount)
-                throw new ArgumentException("The Line or Column specified are not inside the grid");
-
             SudokuInternalNode node = nodes[line, column];
-
-            //if (node.HasValue)
-            //    throw new InvalidOperationException(string.Format("The node at ({0},{1}) already has a value", line, column));
-
             nodes[line, column].Node.Value = value;
             nodes[line, column].HasValue = true;
+            nodes[line, column].Node.PartOfPuzzle = partOfPuzzle;
             RemoveValueFromNeighbours(line, column, value);
         }
 
@@ -126,7 +120,7 @@ namespace SudokuSolverLib
         #region Solve the puzzle
         public bool SolveGrid()
         {
-            return SolveGrid(ArrayHelpers.Range(possibleNodeValueCount));
+            return SolveGrid(new ValuesProvider(possibleNodeValueCount, null));
         }
 
         /// <summary>
@@ -134,15 +128,15 @@ namespace SudokuSolverLib
         /// </summary>
         /// <param name="orderedValues"></param>
         /// <returns></returns>
-        private bool SolveGrid(int[] orderedValues)
+        private bool SolveGrid(ValuesProvider values)
         {
-            return SolveGridInternal(MinHeapFromGrid(), orderedValues);
+            return SolveGridInternal(MinHeapFromGrid(), values);
         }
 
         /// <summary>
         /// Drives the back-tracking algorithm
         /// </summary>
-        private bool SolveGridInternal(Heap<SudokuInternalNode> stillToFix, int[] orderedValues)
+        private bool SolveGridInternal(Heap<SudokuInternalNode> stillToFix, ValuesProvider valuesProvider)
         {
             // if we have a column with no potential values... that is bad :)
             if (stillToFix.IsEmpty)
@@ -158,6 +152,7 @@ namespace SudokuSolverLib
             var node = stillToFix.GetRoot();
             ulong values = node.PossibleValues;
 
+            int[] orderedValues = valuesProvider.GetValues();
             // depending if we are creating a puzzle or solving one
             node.HasValue = true;
             for (int i = 0; i < possibleNodeValueCount; i++)
@@ -167,7 +162,7 @@ namespace SudokuSolverLib
                     continue;
                 }
 
-                if (TrySetValue(node, orderedValues[i] + 1, stillToFix, orderedValues))
+                if (TrySetValue(node, orderedValues[i] + 1, stillToFix, valuesProvider))
                     return true;
             }
 
@@ -182,7 +177,7 @@ namespace SudokuSolverLib
         /// Tries to set a value for a node. 
         /// </summary>
         /// <returns>True if the value is in the right location and the puzzle is solved</returns>
-        private bool TrySetValue(SudokuInternalNode node, int value, Heap<SudokuInternalNode> stillToFix, int[] orderedValues)
+        private bool TrySetValue(SudokuInternalNode node, int value, Heap<SudokuInternalNode> stillToFix, ValuesProvider valuesProvider)
         {
             node.Node.Value = value;
 
@@ -194,7 +189,7 @@ namespace SudokuSolverLib
                 stillToFix.Resort();
             }
 
-            var solved = SolveGridInternal(stillToFix, orderedValues);
+            var solved = SolveGridInternal(stillToFix, valuesProvider);
 
             if (solved)
                 return true;

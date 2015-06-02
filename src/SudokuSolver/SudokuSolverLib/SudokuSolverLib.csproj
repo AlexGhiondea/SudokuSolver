@@ -58,6 +58,7 @@
     <Compile Include="SudokuInternalNode.cs" />
     <Compile Include="SudokuNode.cs" />
     <Compile Include="MinSudokuHeap.cs" />
+    <Compile Include="Utils\ValueRandomizer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

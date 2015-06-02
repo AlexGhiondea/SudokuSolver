@@ -34,7 +34,7 @@ namespace SudokuSolverLib
             if (boxWidth <= 0 || boxHeight <= 0)
                 throw new ArgumentException("Cannot have a negative or zero puzzle size");
 
-            if (boxWidth > 16 || boxHeight > 16)
+            if (boxWidth > 5 || boxHeight > 5)
                 throw new ArgumentException("Cannot have a puzzle box size larger than 16x16");
 
             return new SudokuPuzzle(puzzle, boxWidth, boxHeight);
@@ -42,6 +42,15 @@ namespace SudokuSolverLib
 
         public static SudokuPuzzle Create(int boxWidth, int boxHeight, int hintsCount)
         {
+            if (boxWidth <= 0 || boxHeight <= 0)
+                throw new ArgumentException("Invalid box size");
+
+            if (boxWidth > 5 || boxHeight > 5)
+                throw new ArgumentException("Cannot have a puzzle box size larger than 16x16");
+
+            if (hintsCount < 0 || hintsCount > (boxHeight * boxHeight * boxWidth * boxWidth))
+                throw new ArgumentException("Invalid hints count");
+
             Random randomizer = new Random((int)DateTime.Now.Ticks);
             ValuesProvider randomizedValuesProvider = new ValuesProvider(boxWidth * boxHeight, randomizer);
 

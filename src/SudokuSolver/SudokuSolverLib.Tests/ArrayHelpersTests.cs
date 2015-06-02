@@ -9,6 +9,7 @@ namespace SudokuSolverLib.Tests
 {
     public class ArrayHelpersTests
     {
+#if !PUBLISH
         [Fact]
         public void TestArrayRange()
         {
@@ -40,5 +41,6 @@ namespace SudokuSolverLib.Tests
                 Assert.Equal(range[i], expected[i]);
             }
         }
+#endif
     }
 }

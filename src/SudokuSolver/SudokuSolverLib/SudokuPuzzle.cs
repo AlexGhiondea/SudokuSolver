@@ -100,7 +100,7 @@ namespace SudokuSolverLib
             {
                 for (int col = 0; col < height * width; col++)
                 {
-                    if (nodes[line, col].HasValue)
+                    if (nodes[line, col].Value > SudokuInternalNode.NO_VALUE)
                     {
                         RemoveValueFromNeighbours(line, col, nodes[line, col].Value);
                     }
@@ -113,7 +113,6 @@ namespace SudokuSolverLib
         {
             SudokuInternalNode node = nodes[line, column];
             nodes[line, column].Value = value;
-            nodes[line, column].HasValue = true;
             nodes[line, column].PartOfPuzzle = partOfPuzzle;
             RemoveValueFromNeighbours(line, column, value);
         }
@@ -163,7 +162,6 @@ namespace SudokuSolverLib
 
             int[] orderedValues = valuesProvider.GetValues();
             // depending if we are creating a puzzle or solving one
-            node.HasValue = true;
             for (int i = 0; i < possibleNodeValueCount; i++)
             {
                 if (IsSet(values, orderedValues[i]))
@@ -175,7 +173,7 @@ namespace SudokuSolverLib
                     return true;
             }
 
-            node.HasValue = false;
+            node.Value = SudokuInternalNode.NO_VALUE;
 
             stillToFix.Insert(node);
 
@@ -228,7 +226,7 @@ namespace SudokuSolverLib
                 if (i != line)
                 {
                     node = nodes[i, col];
-                    if (!node.HasValue && node.RemovePossibleValue(value))
+                    if (node.Value == SudokuInternalNode.NO_VALUE && node.RemovePossibleValue(value))
                     {
                         updatedNodes.Add(node);
                     }
@@ -237,7 +235,7 @@ namespace SudokuSolverLib
                 if (i != col)
                 {
                     node = nodes[line, i];
-                    if (!node.HasValue && node.RemovePossibleValue(value))
+                    if (node.Value == SudokuInternalNode.NO_VALUE && node.RemovePossibleValue(value))
                     {
                         updatedNodes.Add(node);
                     }
@@ -252,7 +250,7 @@ namespace SudokuSolverLib
                     if (boxLine != line && boxCol != col)
                     {
                         node = nodes[boxLine, boxCol];
-                        if (!node.HasValue && node.RemovePossibleValue(value))
+                        if (node.Value == SudokuInternalNode.NO_VALUE && node.RemovePossibleValue(value))
                         {
                             updatedNodes.Add(node);
                         }
@@ -374,7 +372,8 @@ namespace SudokuSolverLib
                         // If we actually found a value, set it.
                         if (value > -1)
                         {
-                            nodes[line, column].SetValue(value);
+                            nodes[line, column].Value = value;
+                            nodes[line, column].PartOfPuzzle = true;
                         }
 
                         column++;
@@ -407,11 +406,15 @@ namespace SudokuSolverLib
         {
             Heap<SudokuInternalNode> mh = new MinSudokuHeap(possibleNodeValueCount * possibleNodeValueCount);
 
-            foreach (var node in nodes)
+            for (int i = 0; i < possibleNodeValueCount; i++)
             {
-                if (!node.HasValue)
+                for (int j = 0; j < possibleNodeValueCount; j++)
                 {
-                    mh.Insert(node);
+                    if (nodes[i, j].Value == SudokuInternalNode.NO_VALUE)
+                    {
+                        mh.Insert(nodes[i, j]);
+                    }
+
                 }
             }
 
@@ -426,7 +429,7 @@ namespace SudokuSolverLib
             {
                 for (int j = 0; j < possibleNodeValueCount; j++)
                 {
-                    sb.Append(nodes[i, j].HasValue ? GridHelpers.ValueToChar(nodes[i, j].Value) : '.');
+                    sb.Append(GridHelpers.ValueToChar(nodes[i, j].Value));
                 }
                 sb.AppendLine();
             }

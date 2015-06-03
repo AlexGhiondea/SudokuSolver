@@ -8,6 +8,18 @@ namespace SudokuSolverLib.Helpers
 {
     public static class GridHelpers
     {
+        public static char ValueToChar(int Value)
+        {
+            if (Value < 0)
+                return '.';
+
+            if (Value < 10)
+            {
+                return (char)('0' + Value);
+            }
+            return (char)('A' + (Value - 10));
+        }
+
         public static string PrettyPrint(this SudokuPuzzle grid)
         {
             //generate a string representation for the grid.
@@ -46,7 +58,7 @@ namespace SudokuSolverLib.Helpers
                     var node = sortedNodes[i * grid.BoxWidth * grid.BoxHeight + j];
 
                     line1.Append("   ");
-                    line2.AppendFormat(" {0} ", node.ValueToChar() != '0' ? node.ValueToChar() : '.');
+                    line2.AppendFormat(" {0} ", ValueToChar(node.Value));
                     line3.AppendFormat(" {0} ", node.PartOfPuzzle ? "-" : " ");
 
                     line1.Append(" ");

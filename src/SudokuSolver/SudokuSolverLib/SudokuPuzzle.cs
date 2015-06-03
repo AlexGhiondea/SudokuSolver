@@ -102,7 +102,7 @@ namespace SudokuSolverLib
                 {
                     if (nodes[line, col].HasValue)
                     {
-                        RemoveValueFromNeighbours(line, col, nodes[line, col].Node.Value);
+                        RemoveValueFromNeighbours(line, col, nodes[line, col].Value);
                     }
                 }
             }
@@ -112,9 +112,9 @@ namespace SudokuSolverLib
         private void SetValue(int line, int column, int value, bool partOfPuzzle)
         {
             SudokuInternalNode node = nodes[line, column];
-            nodes[line, column].Node.Value = value;
+            nodes[line, column].Value = value;
             nodes[line, column].HasValue = true;
-            nodes[line, column].Node.PartOfPuzzle = partOfPuzzle;
+            nodes[line, column].PartOfPuzzle = partOfPuzzle;
             RemoveValueFromNeighbours(line, column, value);
         }
 
@@ -122,7 +122,7 @@ namespace SudokuSolverLib
         {
             foreach (var item in nodes)
             {
-                yield return item.Node;
+                yield return new SudokuNode(item.Line, item.Column, item.Value, item.PartOfPuzzle);
             }
         }
 
@@ -188,9 +188,9 @@ namespace SudokuSolverLib
         /// <returns>True if the value is in the right location and the puzzle is solved</returns>
         private bool TrySetValue(SudokuInternalNode node, int value, Heap<SudokuInternalNode> stillToFix, ValuesProvider valuesProvider)
         {
-            node.Node.Value = value;
+            node.Value = value;
 
-            var updatedNodes = RemoveValueFromNeighbours(node.Node.Line, node.Node.Column, node.Node.Value); // new List<SudokuNode>();
+            var updatedNodes = RemoveValueFromNeighbours(node.Line, node.Column, node.Value); // new List<SudokuNode>();
 
             // we need to re-sort the heap after we made the changes.
             if (updatedNodes.Count > 0)
@@ -277,14 +277,14 @@ namespace SudokuSolverLib
                 for (int line = 0; line < possibleNodeValueCount; line++)
                 {
                     // we haven't finished
-                    if (nodes[line, i].Node.Value < 0)
+                    if (nodes[line, i].Value < 0)
                         return false;
-                    rezLine &= (ulong)~(1 << (nodes[line, i].Node.Value - 1));
+                    rezLine &= (ulong)~(1 << (nodes[line, i].Value - 1));
 
                     // we haven't finished
-                    if (nodes[i, line].Node.Value < 0)
+                    if (nodes[i, line].Value < 0)
                         return false;
-                    rezCol &= (ulong)~(1 << (nodes[i, line].Node.Value - 1));
+                    rezCol &= (ulong)~(1 << (nodes[i, line].Value - 1));
                 }
 
                 if (rezLine != winMask || rezCol != winMask)
@@ -302,9 +302,9 @@ namespace SudokuSolverLib
                         for (int boxCol = col * boxWidth; boxCol < (col + 1) * boxWidth; boxCol++)
                         {
                             // we haven't finished
-                            if (nodes[boxLine, boxCol].Node.Value < 0)
+                            if (nodes[boxLine, boxCol].Value < 0)
                                 return false;
-                            rezBox &= (ulong)~(1 << (nodes[boxLine, boxCol].Node.Value - 1));
+                            rezBox &= (ulong)~(1 << (nodes[boxLine, boxCol].Value - 1));
                         }
                     }
 
@@ -426,7 +426,7 @@ namespace SudokuSolverLib
             {
                 for (int j = 0; j < possibleNodeValueCount; j++)
                 {
-                    sb.Append(nodes[i, j].HasValue ? nodes[i, j].Node.ValueToChar() : '.');
+                    sb.Append(nodes[i, j].HasValue ? GridHelpers.ValueToChar(nodes[i, j].Value) : '.');
                 }
                 sb.AppendLine();
             }

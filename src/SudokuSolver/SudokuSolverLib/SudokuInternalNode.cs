@@ -10,7 +10,10 @@ namespace SudokuSolverLib
 {
     internal class SudokuInternalNode
     {
-        public readonly SudokuNode Node;
+        public readonly int Line;
+        public readonly int Column;
+        public int Value;
+        public bool PartOfPuzzle;
 
         public bool HasValue;
 
@@ -22,14 +25,15 @@ namespace SudokuSolverLib
 
         public void SetValue(int value)
         {
-            Node.Value = value;
+            Value = value;
             HasValue = true;
-            Node.PartOfPuzzle = true;
+            PartOfPuzzle = true;
         }
 
         public SudokuInternalNode(int line, int column, int possibleValuesCount)
         {
-            Node = new SudokuNode(line, column);
+            Line = line;
+            Column = column;
             MaxNodeValues = possibleValuesCount;
 
             PossibleValuesCount = MaxNodeValues;
@@ -65,11 +69,11 @@ namespace SudokuSolverLib
         //            }
         //        }
 
-        //        return string.Format("{0} - ({1},{2}) --> values:{3}", PossibleValuesCount, Node.Line, Node.Column, values);
+        //        return string.Format("{0} - ({1},{2}) --> values:{3}", PossibleValuesCount, Line, Column, values);
         //    }
         //    else
         //    {
-        //        return string.Format("({0},{1}) --> value:{2}", Node.Line, Node.Column, Node.Value);
+        //        return string.Format("({0},{1}) --> value:{2}", Line, Column, Value);
         //    }
         //}
 

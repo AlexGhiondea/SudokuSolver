@@ -6,30 +6,19 @@ namespace SudokuSolverLib
     /// <summary>
     /// This represents a solution node 
     /// </summary>
-    public class SudokuNode
+    public struct SudokuNode
     {
         public readonly int Line;
         public readonly int Column;
-        public int Value { get; set; }
-        public bool PartOfPuzzle { get; set; }
+        public readonly int Value;
+        public readonly bool PartOfPuzzle;
 
-        public SudokuNode(int line, int column)
+        public SudokuNode(int line, int column, int value, bool partOfPuzzle) 
         {
             Line = line;
             Column = column;
-            PartOfPuzzle = false;
-        }
-
-        public char ValueToChar()
-        {
-            if (Value < 10)
-            {
-                return (char)('0' + Value);
-            }
-            else
-            {
-                return (char)('A' + (Value - 10));
-            }
+            Value = value;
+            PartOfPuzzle = partOfPuzzle;
         }
     }
 }

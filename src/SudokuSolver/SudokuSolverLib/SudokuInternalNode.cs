@@ -10,29 +10,20 @@ namespace SudokuSolverLib
 {
     internal class SudokuInternalNode
     {
-        public readonly SudokuNode Node;
-
-        public bool HasValue;
-
+        public const int NO_VALUE = -1;
+        public readonly int Line;
+        public readonly int Column;
+        public int Value;
+        public bool PartOfPuzzle;
         public int PossibleValuesCount;
-
         public ulong PossibleValues = ulong.MaxValue;
-
-        private int MaxNodeValues;
-
-        public void SetValue(int value)
-        {
-            Node.Value = value;
-            HasValue = true;
-            Node.PartOfPuzzle = true;
-        }
 
         public SudokuInternalNode(int line, int column, int possibleValuesCount)
         {
-            Node = new SudokuNode(line, column);
-            MaxNodeValues = possibleValuesCount;
-
-            PossibleValuesCount = MaxNodeValues;
+            Line = line;
+            Column = column;
+            Value = NO_VALUE;
+            PossibleValuesCount = possibleValuesCount;
         }
 
         public void AddPossibleValue(int value)
@@ -51,27 +42,6 @@ namespace SudokuSolverLib
             Clear(value - 1);
             return true;
         }
-
-        //public override string ToString()
-        //{
-        //    if (!HasValue)
-        //    {
-        //        string values = string.Empty;
-        //        for (int i = 0; i < MaxNodeValues; i++)
-        //        {
-        //            if (!IsSet(i))
-        //            {
-        //                values += i;
-        //            }
-        //        }
-
-        //        return string.Format("{0} - ({1},{2}) --> values:{3}", PossibleValuesCount, Node.Line, Node.Column, values);
-        //    }
-        //    else
-        //    {
-        //        return string.Format("({0},{1}) --> value:{2}", Node.Line, Node.Column, Node.Value);
-        //    }
-        //}
 
         #region Bitwise helpers
         private void Clear(int index)

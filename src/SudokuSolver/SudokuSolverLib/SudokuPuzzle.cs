@@ -71,8 +71,38 @@ namespace SudokuSolverLib
 
             return resultGrid;
         }
+		public static SudokuPuzzle Create(int boxWidth, int boxHeight, int hintsCount, int Seed)
+		{
+			if (boxWidth <= 0 || boxHeight <= 0)
+				throw new ArgumentException("Invalid box size");
 
-        private SudokuPuzzle(int boxWidth, int boxHeight)
+			if (boxWidth > 5 || boxHeight > 5)
+				throw new ArgumentException("Cannot have a puzzle box size larger than 16x16");
+
+			if (hintsCount < 0 || hintsCount > (boxHeight * boxHeight * boxWidth * boxWidth))
+				throw new ArgumentException("Invalid hints count");
+
+			Random randomizer = new Random(Seed);
+			ValuesProvider randomizedValuesProvider = new ValuesProvider(boxWidth * boxHeight, randomizer);
+
+			// Create a new grid by solving an empty grid using a randomized order of picking values
+			SudokuPuzzle grid = new SudokuPuzzle(boxWidth, boxHeight);
+			grid.SolveGrid(randomizedValuesProvider);
+
+			// Create a new grid by taking hintsCount hints from the solved grid.
+			int[] hintsLocation = ArrayHelpers.RandomizedRange(boxHeight * boxWidth * boxHeight * boxWidth, randomizer);
+
+			SudokuPuzzle resultGrid = new SudokuPuzzle(boxWidth, boxHeight);
+
+			var x = grid.GetNodes().ToArray();
+			for (int i = 0; i < hintsCount; i++)
+			{
+				resultGrid.SetValue(x[hintsLocation[i]].Line, x[hintsLocation[i]].Column, x[hintsLocation[i]].Value, true);
+			}
+
+			return resultGrid;
+		}
+		private SudokuPuzzle(int boxWidth, int boxHeight)
         {
             this.boxHeight = boxHeight;
             this.boxWidth = boxWidth;

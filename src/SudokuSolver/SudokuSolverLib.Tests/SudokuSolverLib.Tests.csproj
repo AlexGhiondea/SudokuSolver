@@ -74,9 +74,9 @@
     <Compile Include="SudokuPuzzles.Create.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SudokuSolverLib\SudokuSolverLib.csproj">
-      <Project>{148063bf-e2cd-4f1c-acc8-1f46ade8e391}</Project>
-      <Name>SudokuSolverLib</Name>
+    <ProjectReference Include="..\SudokuSolverPCL\SudokuSolverPCL.csproj">
+      <Project>{4974a426-eaad-4b28-b915-58f834b29174}</Project>
+      <Name>SudokuSolverPCL</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

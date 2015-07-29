@@ -16,5 +16,6 @@
   </metadata>
 <files>
   <file src="..\..\bin\publish\Desktop\SudokuSolverLib.dll" target="lib\net45\" />
+  <file src="..\..\bin\publish\Portable.Win81\SudokuSolverLib.dll" target="lib\portable-wp81+win81\" />
 </files>
 </package>

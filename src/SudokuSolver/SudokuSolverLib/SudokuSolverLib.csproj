@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Publish|AnyCPU'">
-    <OutputPath>..\..\..\bin\Publish\</OutputPath>
+    <OutputPath>..\..\..\bin\Publish\Desktop\</OutputPath>
     <DefineConstants>TRACE;PUBLISH</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>

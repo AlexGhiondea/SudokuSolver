@@ -15,6 +15,6 @@
     <tags>Sudoku Solver Puzzle General Creator Generator</tags>
   </metadata>
 <files>
-  <file src="..\..\bin\publish\SudokuSolverLib.dll" target="lib\net45\" />
+  <file src="..\..\bin\publish\Desktop\SudokuSolverLib.dll" target="lib\net45\" />
 </files>
 </package>

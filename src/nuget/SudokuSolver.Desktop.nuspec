@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SudokuSolverLib</id>
-    <version>1.0.0.4</version>
+    <version>1.0.0.5</version>
     <title>Sudoku Solver Lib</title>
     <authors>Alex Ghiondea</authors>
     <owners>Alex Ghiondea</owners>
@@ -10,11 +10,12 @@
     <licenseUrl>https://raw.githubusercontent.com/AlexGhiondea/SudokuSolver/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>General Sudoku solver and creator library</description>
-    <releaseNotes>Initial release</releaseNotes>
+    <releaseNotes>Add support for portable library.</releaseNotes>
     <copyright>(c) Alex Ghiondea 2015</copyright>
     <tags>Sudoku Solver Puzzle General Creator Generator</tags>
   </metadata>
 <files>
-  <file src="..\..\bin\publish\SudokuSolverLib.dll" target="lib\net45\" />
+  <file src="..\..\bin\publish\Desktop\SudokuSolverLib.dll" target="lib\net45\" />
+  <file src="..\..\bin\publish\Portable.Win81\SudokuSolverLib.dll" target="lib\portable-wp81+win81\" />
 </files>
 </package>

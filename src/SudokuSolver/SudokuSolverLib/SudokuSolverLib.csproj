@@ -50,6 +50,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="stringResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>stringResources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Utils\ArrayHelpers.cs" />
     <Compile Include="Utils\GridHelpers.cs" />
     <Compile Include="Utils\HeapOfT.cs" />
@@ -58,7 +63,14 @@
     <Compile Include="SudokuInternalNode.cs" />
     <Compile Include="SudokuNode.cs" />
     <Compile Include="MinSudokuHeap.cs" />
+    <Compile Include="Utils\ResourceProvider.cs" />
     <Compile Include="Utils\ValueRandomizer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="stringResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>stringResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

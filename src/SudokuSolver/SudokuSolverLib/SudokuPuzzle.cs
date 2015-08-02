@@ -29,13 +29,13 @@ namespace SudokuSolverLib
         public static SudokuPuzzle FromString(string puzzle, int boxWidth, int boxHeight)
         {
             if (string.IsNullOrEmpty(puzzle))
-                throw new ArgumentException("Puzzle cannot be empty", "puzzle");
+                throw new ArgumentException(ResourceProvider.GetString("Puzzle_PuzzleCannotBeEmpty"), "puzzle");
 
             if (boxWidth <= 0 || boxHeight <= 0)
-                throw new ArgumentException("Cannot have a negative or zero puzzle size");
+                throw new ArgumentException(ResourceProvider.GetString("Puzzle_NoNegativePuzzleSize"));
 
             if (boxWidth > 5 || boxHeight > 5)
-                throw new ArgumentException("Cannot have a puzzle box size larger than 16x16");
+                throw new ArgumentException(ResourceProvider.GetString("Puzzle_NoPuzzleBoxLargerThan5"));
 
             return new SudokuPuzzle(puzzle, boxWidth, boxHeight);
         }
@@ -43,13 +43,13 @@ namespace SudokuSolverLib
         public static SudokuPuzzle Create(int boxWidth, int boxHeight, int hintsCount)
         {
             if (boxWidth <= 0 || boxHeight <= 0)
-                throw new ArgumentException("Invalid box size");
+                throw new ArgumentException(ResourceProvider.GetString("Puzzle_NoNegativePuzzleSize"));
 
             if (boxWidth > 5 || boxHeight > 5)
-                throw new ArgumentException("Cannot have a puzzle box size larger than 16x16");
+                throw new ArgumentException(ResourceProvider.GetString("Puzzle_NoPuzzleBoxLargerThan5"));
 
             if (hintsCount < 0 || hintsCount > (boxHeight * boxHeight * boxWidth * boxWidth))
-                throw new ArgumentException("Invalid hints count");
+                throw new ArgumentException(ResourceProvider.GetString("Puzzle_InvalidHintsCount"));
 
             Random randomizer = new Random((int)DateTime.Now.Ticks);
             ValuesProvider randomizedValuesProvider = new ValuesProvider(boxWidth * boxHeight, randomizer);
@@ -361,12 +361,12 @@ namespace SudokuSolverLib
                         }
                         else if (c != '.')
                         {
-                            throw new FormatException(string.Format("Unexpected character '{0}' while parsing puzzle (line {1} col {2})", c, line + 1, textCol + 1));
+                            throw new FormatException(string.Format(ResourceProvider.GetString("Puzzle_UnexpectedCharacterWhileParsing"), c, line + 1, textCol + 1));
                         }
 
                         if (column >= possibleNodeValueCount)
                         {
-                            throw new ArgumentException("There is a mismatch between the size of the grid and the nodes identified in the puzzle");
+                            throw new ArgumentException(ResourceProvider.GetString("Puzzle_MismatchBetweenGridSizeAndPuzzleNodes"));
                         }
 
                         // If we actually found a value, set it.
@@ -382,7 +382,7 @@ namespace SudokuSolverLib
 
                     // Making sure we have all the nodes we need
                     if (column != width * height)
-                        throw new ArgumentException("There is a mismatch between the size of the grid and the nodes identified in the puzzle");
+                        throw new ArgumentException(ResourceProvider.GetString("Puzzle_MismatchBetweenGridSizeAndPuzzleNodes"));
 
                     line++;
                 }
@@ -390,7 +390,7 @@ namespace SudokuSolverLib
 
             // we need to make sure we have enough elements.
             if (line != width * height)
-                throw new ArgumentException("There is a mismatch between the size of the grid and the nodes identified in the puzzle");
+                throw new ArgumentException(ResourceProvider.GetString("Puzzle_MismatchBetweenGridSizeAndPuzzleNodes"));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

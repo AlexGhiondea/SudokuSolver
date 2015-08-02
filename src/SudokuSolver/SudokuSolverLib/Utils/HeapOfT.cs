@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Alex Ghiondea. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using SudokuSolverLib.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -23,7 +24,7 @@ namespace SudokuSolverLib.Helpers
         public Heap(int storageSize)
         {
             if (storageSize < 0)
-                throw new ArgumentException("Initial storage size must be a positive number");
+                throw new ArgumentException(ResourceProvider.GetString("Heap_InitialMustBePositive"));
 
             _storage = new T[storageSize];
         }
@@ -58,7 +59,7 @@ namespace SudokuSolverLib.Helpers
         public T GetRoot()
         {
             if (_size == 0)
-                throw new InvalidOperationException("No elements in the heap");
+                throw new InvalidOperationException(ResourceProvider.GetString("Heap_NoElements"));
 
             T min = _storage[0];
             _storage[0] = _storage[--_size];

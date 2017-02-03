@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SudokuSolverLib</id>
-    <version>1.0.0.5</version>
+    <version>1.1.0</version>
     <title>Sudoku Solver Lib</title>
     <authors>Alex Ghiondea</authors>
     <owners>Alex Ghiondea</owners>
@@ -16,6 +16,7 @@
   </metadata>
 <files>
   <file src="..\..\bin\publish\Desktop\SudokuSolverLib.dll" target="lib\net45\" />
+  <file src="..\..\bin\publish\netstandard1.0\SudokuSolverLib.dll" target="lib\netstandard1.0\" />
   <file src="..\..\bin\publish\Portable.Win81\SudokuSolverLib.dll" target="lib\portable-wp81+win81\" />
 </files>
 </package>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26202.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SudokuSolverLib", "SudokuSolverLib\SudokuSolverLib.csproj", "{148063BF-E2CD-4F1C-ACC8-1F46ADE8E391}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SudokuSolver.TestApp", "SudokuSolver.TestApp\SudokuSolver.TestApp.csproj", "{4CC408AB-A502-4D63-ACF3-3E44722434DA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SudokuSolver.Portable.Win81", "SudokuSolver.Portable.Win81\SudokuSolver.Portable.Win81.csproj", "{4212AE09-65DB-43DA-86B9-239D3EFE2ABA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SudokuSolver.Core", "SudokuSolver.Core\SudokuSolver.Core.csproj", "{19CE5363-3475-40ED-8E4D-BBC2E39BA726}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,6 +125,30 @@ Global
 		{4212AE09-65DB-43DA-86B9-239D3EFE2ABA}.Release|x64.Build.0 = Release|Any CPU
 		{4212AE09-65DB-43DA-86B9-239D3EFE2ABA}.Release|x86.ActiveCfg = Release|Any CPU
 		{4212AE09-65DB-43DA-86B9-239D3EFE2ABA}.Release|x86.Build.0 = Release|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Debug|ARM.Build.0 = Debug|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Debug|x64.ActiveCfg = Debug|x64
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Debug|x64.Build.0 = Debug|x64
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Debug|x86.ActiveCfg = Debug|x86
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Debug|x86.Build.0 = Debug|x86
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Publish|Any CPU.ActiveCfg = Debug|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Publish|Any CPU.Build.0 = Debug|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Publish|ARM.ActiveCfg = Debug|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Publish|ARM.Build.0 = Debug|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Publish|x64.ActiveCfg = Release|x64
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Publish|x64.Build.0 = Release|x64
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Publish|x86.ActiveCfg = Release|x86
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Publish|x86.Build.0 = Release|x86
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Release|ARM.ActiveCfg = Release|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Release|ARM.Build.0 = Release|Any CPU
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Release|x64.ActiveCfg = Release|x64
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Release|x64.Build.0 = Release|x64
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Release|x86.ActiveCfg = Release|x86
+		{19CE5363-3475-40ED-8E4D-BBC2E39BA726}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
